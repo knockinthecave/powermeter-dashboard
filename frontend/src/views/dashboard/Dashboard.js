@@ -7,10 +7,14 @@ import {
   CCol,
   CProgress,
   CRow,
+  CWidgetStatsF,
 } from '@coreui/react-pro'
+import { CIcon } from '@coreui/icons-react'
+import { cilSpeedometer } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
 
 const Dashboard = () => {
+  // const random = () => Math.round(Math.random() * 100)
   const navigate = useNavigate()
 
   // 예시 데이터
@@ -80,10 +84,372 @@ const Dashboard = () => {
 
   return (
     <CRow>
+      <CCol md={3}>
+        <CWidgetStatsF
+          className="mb-3"
+          color="primary"
+          icon={<CIcon icon={cilSpeedometer} height={24} />}
+          title="현재 유효전력"
+          value="3.074 kW"
+        />
+      </CCol>
+      <CCol md={3}>
+        <CWidgetStatsF
+          className="mb-3"
+          color="info"
+          icon={<CIcon icon={cilSpeedometer} height={24} />}
+          title="현재 무효전력"
+          value="4.025 kvar"
+        />
+      </CCol>
+      <CCol md={3}>
+        <CWidgetStatsF
+          className="mb-3"
+          color="warning"
+          icon={<CIcon icon={cilSpeedometer} height={24} />}
+          title="실내온도"
+          value="25.4 °C"
+        />
+      </CCol>
+      <CCol md={3}>
+        <CWidgetStatsF
+          className="mb-3"
+          color="danger"
+          icon={<CIcon icon={cilSpeedometer} height={24} />}
+          title="실내습도"
+          value="54.2 %"
+        />
+      </CCol>
+      <CCol md={6}>
+        <CCard className="mb-4" onClick={airQualitySensorClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">실내 공기질 복합센서</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              EAQ-RD5
+            </CCardSubtitle>
+            <CRow>
+              <CCol xs={12} md={6} xl={4}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">PM10</div>
+                  <div className="fs-5 fw-semibold">{airQualityData.PM10} µg/m³</div>
+                  <CProgress
+                    value={(airQualityData.PM10 / 600) * 100}
+                    color={
+                      airQualityData.PM10 > 150
+                        ? 'danger'
+                        : airQualityData.PM10 > 100
+                          ? 'warning'
+                          : 'success'
+                    }
+                  />
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">PM2.5</div>
+                  <div className="fs-5 fw-semibold">{airQualityData.PM25} µg/m³</div>
+                  <CProgress
+                    value={(airQualityData.PM25 / 500) * 100}
+                    color={
+                      airQualityData.PM25 > 75
+                        ? 'danger'
+                        : airQualityData.PM25 > 50
+                          ? 'warning'
+                          : 'success'
+                    }
+                  />
+                </div>
+              </CCol>
+              <CCol xs={12} md={6} xl={4}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">CO2</div>
+                  <div className="fs-5 fw-semibold">{airQualityData.CO2} ppm</div>
+                  <CProgress
+                    value={(airQualityData.CO2 / 2000) * 100}
+                    color={
+                      airQualityData.CO2 > 1000
+                        ? 'danger'
+                        : airQualityData.CO2 > 800
+                          ? 'warning'
+                          : 'success'
+                    }
+                  />
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">온도</div>
+                  <div className="fs-5 fw-semibold">{airQualityData.temperature} °C</div>
+                  <CProgress
+                    value={((airQualityData.temperature + 40) / 165) * 100}
+                    color={
+                      airQualityData.temperature > 35
+                        ? 'danger'
+                        : airQualityData.temperature > 30
+                          ? 'warning'
+                          : 'success'
+                    }
+                  />
+                </div>
+              </CCol>
+              <CCol xs={12} md={6} xl={4}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">습도</div>
+                  <div className="fs-5 fw-semibold">{airQualityData.humidity} %</div>
+                  <CProgress
+                    value={(airQualityData.humidity / 100) * 100}
+                    color={
+                      airQualityData.humidity > 70
+                        ? 'danger'
+                        : airQualityData.humidity > 60
+                          ? 'warning'
+                          : 'success'
+                    }
+                  />
+                </div>
+              </CCol>
+            </CRow>
+          </CCardBody>
+        </CCard>
+      </CCol>
+      <CCol md={6}>
+        <CCard className="mb-4" onClick={heatSmokeSensorClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">열연기 감지기</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              NEOS-HSD200
+            </CCardSubtitle>
+            <CRow>
+              <CCol xs={12} md={6} xl={4}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">연기감지 챔버</div>
+                  <div className="fs-5 fw-semibold">{smokeQualityData.smokeDetect}</div>
+                  <CProgress
+                    value={100}
+                    color={smokeQualityData.smokeDetect === 'ON' ? 'danger' : 'success'}
+                  />
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">온도</div>
+                  <div className="fs-5 fw-semibold">{smokeQualityData.temperature} °C</div>
+                  <CProgress
+                    value={((smokeQualityData.temperature + 40) / 165) * 100}
+                    color={
+                      airQualityData.temperature > 35
+                        ? 'danger'
+                        : airQualityData.temperature > 30
+                          ? 'warning'
+                          : 'success'
+                    }
+                  />
+                </div>
+              </CCol>
+              <CCol xs={12} md={6} xl={4}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">습도</div>
+                  <div className="fs-5 fw-semibold">{smokeQualityData.humidity} %</div>
+                  <CProgress
+                    value={(smokeQualityData.humidity / 100) * 100}
+                    color={
+                      airQualityData.humidity > 70
+                        ? 'danger'
+                        : airQualityData.humidity > 60
+                          ? 'warning'
+                          : 'success'
+                    }
+                  />
+                </div>
+              </CCol>
+            </CRow>
+          </CCardBody>
+        </CCard>
+      </CCol>
       <CCol md={12}>
         <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
           <CCardBody className="p-4">
-            <CCardTitle className="fs-4 fw-semibold">전력량계</CCardTitle>
+            <CCardTitle className="fs-4 fw-semibold">전력량계 1</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              PEW-15-120HK 형
+            </CCardSubtitle>
+            <CRow>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.effectiveEnergy} Wh</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">무효전력량</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.reactiveEnergy} varh</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전압 S상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.voltageS} V</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전류 S상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.currentS} A</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전압 R상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.voltageR} V</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전류 R상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.currentR} A</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">유효전력</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.activePower} W</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">무효전력</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.reactivePower} var</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전압 T상(단상)</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.voltageT} V</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전류 T상(단상)</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.currentT} A</div>
+                </div>
+              </CCol>
+            </CRow>
+          </CCardBody>
+        </CCard>
+      </CCol>
+      <CCol md={12}>
+        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">전력량계 2</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              PEW-15-120HK 형
+            </CCardSubtitle>
+            <CRow>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.effectiveEnergy} Wh</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">무효전력량</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.reactiveEnergy} varh</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전압 S상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.voltageS} V</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전류 S상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.currentS} A</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전압 R상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.voltageR} V</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전류 R상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.currentR} A</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">유효전력</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.activePower} W</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">무효전력</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.reactivePower} var</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전압 T상(단상)</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.voltageT} V</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전류 T상(단상)</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.currentT} A</div>
+                </div>
+              </CCol>
+            </CRow>
+          </CCardBody>
+        </CCard>
+      </CCol>
+      <CCol md={12}>
+        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">전력량계 3</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              PEW-15-120HK 형
+            </CCardSubtitle>
+            <CRow>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.effectiveEnergy} Wh</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">무효전력량</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.reactiveEnergy} varh</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전압 S상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.voltageS} V</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전류 S상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.currentS} A</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전압 R상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.voltageR} V</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전류 R상</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.currentR} A</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">유효전력</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.activePower} W</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">무효전력</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.reactivePower} var</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={4} xl={2}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전압 T상(단상)</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.voltageT} V</div>
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">전류 T상(단상)</div>
+                  <div className="fs-5 fw-semibold">{powerMeterData.currentT} A</div>
+                </div>
+              </CCol>
+            </CRow>
+          </CCardBody>
+        </CCard>
+      </CCol>
+      <CCol md={12}>
+        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">전력량계 4</CCardTitle>
             <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
               PEW-15-120HK 형
             </CCardSubtitle>
@@ -250,146 +616,6 @@ const Dashboard = () => {
                 <div className="mb-4">
                   <div className="text-body-secondary text-truncate small">&Sigma;EP-</div>
                   <div className="fs-5 fw-semibold">{multiMetaData.EPMinus} Wh</div>
-                </div>
-              </CCol>
-            </CRow>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol md={6}>
-        <CCard className="mb-4" onClick={airQualitySensorClick} style={{ cursor: 'pointer' }}>
-          <CCardBody className="p-4">
-            <CCardTitle className="fs-4 fw-semibold">실내 공기질 복합센서</CCardTitle>
-            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
-              EAQ-RD5
-            </CCardSubtitle>
-            <CRow>
-              <CCol xs={12} md={6} xl={4}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">PM10</div>
-                  <div className="fs-5 fw-semibold">{airQualityData.PM10} µg/m³</div>
-                  <CProgress
-                    value={(airQualityData.PM10 / 600) * 100}
-                    color={
-                      airQualityData.PM10 > 150
-                        ? 'danger'
-                        : airQualityData.PM10 > 100
-                          ? 'warning'
-                          : 'success'
-                    }
-                  />
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">PM2.5</div>
-                  <div className="fs-5 fw-semibold">{airQualityData.PM25} µg/m³</div>
-                  <CProgress
-                    value={(airQualityData.PM25 / 500) * 100}
-                    color={
-                      airQualityData.PM25 > 75
-                        ? 'danger'
-                        : airQualityData.PM25 > 50
-                          ? 'warning'
-                          : 'success'
-                    }
-                  />
-                </div>
-              </CCol>
-              <CCol xs={12} md={6} xl={4}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">CO2</div>
-                  <div className="fs-5 fw-semibold">{airQualityData.CO2} ppm</div>
-                  <CProgress
-                    value={(airQualityData.CO2 / 2000) * 100}
-                    color={
-                      airQualityData.CO2 > 1000
-                        ? 'danger'
-                        : airQualityData.CO2 > 800
-                          ? 'warning'
-                          : 'success'
-                    }
-                  />
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">온도</div>
-                  <div className="fs-5 fw-semibold">{airQualityData.temperature} °C</div>
-                  <CProgress
-                    value={((airQualityData.temperature + 40) / 165) * 100}
-                    color={
-                      airQualityData.temperature > 35
-                        ? 'danger'
-                        : airQualityData.temperature > 30
-                          ? 'warning'
-                          : 'success'
-                    }
-                  />
-                </div>
-              </CCol>
-              <CCol xs={12} md={6} xl={4}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">습도</div>
-                  <div className="fs-5 fw-semibold">{airQualityData.humidity} %</div>
-                  <CProgress
-                    value={(airQualityData.humidity / 100) * 100}
-                    color={
-                      airQualityData.humidity > 70
-                        ? 'danger'
-                        : airQualityData.humidity > 60
-                          ? 'warning'
-                          : 'success'
-                    }
-                  />
-                </div>
-              </CCol>
-            </CRow>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol md={6}>
-        <CCard className="mb-4" onClick={heatSmokeSensorClick} style={{ cursor: 'pointer' }}>
-          <CCardBody className="p-4">
-            <CCardTitle className="fs-4 fw-semibold">열연기 감지기</CCardTitle>
-            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
-              NEOS-HSD200
-            </CCardSubtitle>
-            <CRow>
-              <CCol xs={12} md={6} xl={4}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">연기감지 챔버</div>
-                  <div className="fs-5 fw-semibold">{smokeQualityData.smokeDetect}</div>
-                  <CProgress
-                    value={100}
-                    color={smokeQualityData.smokeDetect === 'ON' ? 'danger' : 'success'}
-                  />
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">온도</div>
-                  <div className="fs-5 fw-semibold">{smokeQualityData.temperature} °C</div>
-                  <CProgress
-                    value={((smokeQualityData.temperature + 40) / 165) * 100}
-                    color={
-                      airQualityData.temperature > 35
-                        ? 'danger'
-                        : airQualityData.temperature > 30
-                          ? 'warning'
-                          : 'success'
-                    }
-                  />
-                </div>
-              </CCol>
-              <CCol xs={12} md={6} xl={4}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">습도</div>
-                  <div className="fs-5 fw-semibold">{smokeQualityData.humidity} %</div>
-                  <CProgress
-                    value={(smokeQualityData.humidity / 100) * 100}
-                    color={
-                      airQualityData.humidity > 70
-                        ? 'danger'
-                        : airQualityData.humidity > 60
-                          ? 'warning'
-                          : 'success'
-                    }
-                  />
                 </div>
               </CCol>
             </CRow>

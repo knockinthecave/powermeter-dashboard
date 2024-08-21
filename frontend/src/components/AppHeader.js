@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { CContainer, CHeader } from '@coreui/react-pro'
 import CIcon from '@coreui/icons-react'
-import { cilSun, cilRain, cilCloud, cilCloudy, cilSnowflake, cilHome } from '@coreui/icons'
+import { cilSun, cilRain, cilCloud, cilCloudy, cilSnowflake } from '@coreui/icons'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom' // React Router의 NavLink 가져오기
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -13,7 +12,6 @@ const AppHeader = () => {
     new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
   )
   const [error, setError] = useState(null)
-  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchWeather = () => {
@@ -64,20 +62,9 @@ const AppHeader = () => {
     }
   }
 
-  const handleHomeClick = () => {
-    navigate('/')
-  }
-
   return (
     <CHeader position="sticky" className="bg-primary mb-4 p-0" ref={headerRef}>
       <CContainer fluid className="d-flex justify-content-between align-items-center">
-        <CIcon
-          customClassName="sidebar-brand-full"
-          icon={cilHome}
-          height={32}
-          style={{ cursor: 'pointer' }}
-          onClick={handleHomeClick}
-        />
         <div className="text-white ms-auto me-3 d-flex align-items-center">
           {weather && (
             <div className="me-4 d-flex align-items-center">

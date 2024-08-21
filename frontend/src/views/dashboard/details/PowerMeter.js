@@ -1,15 +1,122 @@
 import React from 'react'
 import { CCard, CCardBody, CCol, CCardHeader, CRow } from '@coreui/react-pro'
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
+import GaugeComponent from 'react-gauge-component'
 
 const PowerMeter = () => {
-  const random = () => Math.round(Math.random() * 100)
+  const random = (min, max) => Math.round(Math.random() * 1000)
+  const maxYValue = 1500
+
+  const currentPower = 1200 // 현재 전력량
+
+  const kiloWattToMegaWatt = (value) => {
+    if (value >= 1000) {
+      value = value / 1000
+      if (Number.isInteger(value)) {
+        return value.toFixed(0) + ' kW'
+      } else {
+        return value.toFixed(1) + ' kW'
+      }
+    } else {
+      return value.toFixed(0) + ' W'
+    }
+  }
 
   return (
     <CRow>
       <div style={{ marginBottom: '12px' }}>
         <h2>전력량계</h2>
       </div>
+      <CCol md={6}>
+        <CCard className="mb-4">
+          <CCardHeader>현재 유효전력 (W)</CCardHeader>
+          <CCardBody>
+            <GaugeComponent
+              arc={{
+                nbSubArcs: 150,
+                colorArray: ['#5BE12C', '#F5CD19', '#EA4228'],
+                width: 0.4,
+                padding: 0.003,
+              }}
+              labels={{
+                valueLabel: {
+                  fontSize: 40,
+                  formatTextValue: kiloWattToMegaWatt,
+                },
+                tickLabels: {
+                  type: 'outer',
+                  ticks: [
+                    { value: 100 },
+                    { value: 200 },
+                    { value: 300 },
+                    { value: 400 },
+                    { value: 500 },
+                    { value: 600 },
+                    { value: 700 },
+                    { value: 800 },
+                    { value: 900 },
+                    { value: 1000 },
+                    { value: 1500 },
+                    { value: 2000 },
+                    { value: 2500 },
+                    { value: 3000 },
+                  ],
+                  valueConfig: {
+                    formatTextValue: kiloWattToMegaWatt,
+                  },
+                },
+              }}
+              value={currentPower}
+              maxValue={3000}
+            />
+          </CCardBody>
+        </CCard>
+      </CCol>
+      <CCol md={6}>
+        <CCard className="mb-4">
+          <CCardHeader>현재 무효전력 (W)</CCardHeader>
+          <CCardBody>
+            <GaugeComponent
+              arc={{
+                nbSubArcs: 150,
+                colorArray: ['#5BE12C', '#F5CD19', '#EA4228'],
+                width: 0.4,
+                padding: 0.003,
+              }}
+              labels={{
+                valueLabel: {
+                  fontSize: 40,
+                  formatTextValue: kiloWattToMegaWatt,
+                },
+                tickLabels: {
+                  type: 'outer',
+                  ticks: [
+                    { value: 100 },
+                    { value: 200 },
+                    { value: 300 },
+                    { value: 400 },
+                    { value: 500 },
+                    { value: 600 },
+                    { value: 700 },
+                    { value: 800 },
+                    { value: 900 },
+                    { value: 1000 },
+                    { value: 1500 },
+                    { value: 2000 },
+                    { value: 2500 },
+                    { value: 3000 },
+                  ],
+                  valueConfig: {
+                    formatTextValue: kiloWattToMegaWatt,
+                  },
+                },
+              }}
+              value={currentPower}
+              maxValue={3000}
+            />
+          </CCardBody>
+        </CCard>
+      </CCol>
       <CCol md={6}>
         <CCard className="mb-4">
           <CCardHeader>시간대별 유효전력량 (Wh)</CCardHeader>
@@ -52,6 +159,15 @@ const PowerMeter = () => {
                   },
                 ],
               }}
+              options={{
+                scales: {
+                  y: {
+                    max: maxYValue,
+                    beginAtZero: true,
+                  },
+                },
+              }}
+              style={{ height: '300px', width: '100%' }}
             />
           </CCardBody>
         </CCard>
@@ -89,6 +205,15 @@ const PowerMeter = () => {
                   },
                 ],
               }}
+              options={{
+                scales: {
+                  y: {
+                    max: maxYValue,
+                    beginAtZero: true,
+                  },
+                },
+              }}
+              style={{ height: '300px', width: '100%' }}
             />
           </CCardBody>
         </CCard>
@@ -135,6 +260,15 @@ const PowerMeter = () => {
                   },
                 ],
               }}
+              options={{
+                scales: {
+                  y: {
+                    max: maxYValue,
+                    beginAtZero: true,
+                  },
+                },
+              }}
+              style={{ height: '300px', width: '100%' }}
             />
           </CCardBody>
         </CCard>
@@ -172,6 +306,15 @@ const PowerMeter = () => {
                   },
                 ],
               }}
+              options={{
+                scales: {
+                  y: {
+                    max: maxYValue,
+                    beginAtZero: true,
+                  },
+                },
+              }}
+              style={{ height: '300px', width: '100%' }}
             />
           </CCardBody>
         </CCard>
