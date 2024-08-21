@@ -5,7 +5,7 @@ import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from '@react-google-map
 import { ProBadge } from 'src/components'
 
 // To use the Google Maps JavaScript API, you must register your app project on the Google API Console and get a Google API key which you can add to your app
-const apiKey = 'AIzaSyASyYRBZmULmrmw_P9kgr7_266OhFNinPA'
+const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY
 
 const defaultZoom = 11
 const defaultCenter = { lat: 37.431489, lng: -122.163719 }
