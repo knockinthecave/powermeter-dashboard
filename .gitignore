@@ -379,7 +379,26 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-backend.zip
-frontend.zip
+
+# File or Directory
+*.zip
+
+### Video ###
+*.3g2
+*.3gp
+*.asf
+*.asx
+*.avi
+*.flv
+*.mkv
+*.mov
+*.mp4
+*.mpg
+*.ogv
+*.rm
+*.swf
+*.vob
+*.wmv
+*.webm
 
 # End of https://www.toptal.com/developers/gitignore/api/node,windows,macos,react,django
