@@ -5,3 +5,4 @@ Markdown==3.7
 mysqlclient==2.2.4
 python-decouple==3.8
 drf-yasg==1.21.7
+uvicorn==0.30.6
