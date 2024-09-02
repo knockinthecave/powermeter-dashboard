@@ -14,9 +14,6 @@
 - **시간대별 데이터 시각화**: 하루 24시간 동안의 센서 데이터를 시각화하여, 특정 시간대의 데이터를 쉽게 파악할 수 있습니다.
 - **월별 데이터 시각화**: 1년 동안의 월별 센서 데이터를 시각화하여, 특정 월의 데이터를 쉽게 비교할 수 있습니다.
 
-## Communication
-- Jira 
-
 ## FE
 ### Requirements
 ![Node.js Version](https://img.shields.io/badge/node-v18.17.1-brightgreen)
