@@ -8,6 +8,9 @@ const HeatSmokeSensor = React.lazy(() => import('./views/dashboard/details/HeatS
 const DigitalMultiMeter = React.lazy(() => import('./views/dashboard/details/DigitalMultiMeter'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
+const ArtWork = React.lazy(() => import('./views/pages/settings/ArtWork'))
+const Poster = React.lazy(() => import('./views/pages/settings/Poster'))
+const Video = React.lazy(() => import('./views/pages/settings/Video'))
 
 // Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
@@ -78,6 +81,9 @@ const routes = [
   { path: '/dashboard/air-quality-sensor', name: 'AirQualitySensor', element: AirQualitySensor },
   { path: '/dashboard/heat-smoke-sensor', name: 'HeatSmokeSensor', element: HeatSmokeSensor },
   { path: '/dashboard/digital-multi-meter', name: 'DigitalMultiMeter', element: DigitalMultiMeter },
+  { path: '/artwork', name: 'ArtWork', element: ArtWork },
+  { path: '/poster', name: 'Poster', element: Poster },
+  { path: '/video', name: 'Video', element: Video },
   {
     path: '/theme',
     name: <Translation>{(t) => t('theme')}</Translation>,

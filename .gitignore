@@ -379,5 +379,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+backend.zip
+frontend.zip
 
 # End of https://www.toptal.com/developers/gitignore/api/node,windows,macos,react,django

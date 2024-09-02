@@ -1,83 +1,81 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { CContainer, CHeader } from '@coreui/react-pro'
+import React from 'react'
+import {
+  CContainer,
+  CHeader,
+  CDropdown,
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdownItem,
+  CButton,
+} from '@coreui/react-pro'
 import CIcon from '@coreui/icons-react'
-import { cilSun, cilRain, cilCloud, cilCloudy, cilSnowflake } from '@coreui/icons'
-import axios from 'axios'
+import { cilSettings } from '@coreui/icons'
+import { useNavigate } from 'react-router-dom'
 
 const AppHeader = () => {
-  const headerRef = useRef()
+  const navigate = useNavigate()
 
-  const [weather, setWeather] = useState(null)
-  const [currentTime, setCurrentTime] = useState(
-    new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-  )
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    const fetchWeather = () => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords
-          getWeather(latitude, longitude)
-        },
-        (error) => {
-          setError(`위치 정보를 가져올 수 없습니다.`)
-        },
-      )
-    }
-
-    fetchWeather()
-    const intervalId = setInterval(() => {
-      fetchWeather()
-      setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))
-    }, 60000)
-
-    return () => clearInterval(intervalId)
-  }, [])
-
-  const getWeather = async (lat, lon) => {
-    try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.REACT_APP_WEATHER_API_KEY}&lang=kr&units=metric`,
-      )
-      setWeather(response.data)
-    } catch (error) {
-      setError(`날씨 정보를 가져올 수 없습니다.`)
-    }
+  const handleNavigate = (path) => {
+    navigate(path)
   }
 
-  const getWeatherIcon = (weatherMain) => {
-    switch (weatherMain) {
-      case 'Clear':
-        return cilSun
-      case 'Rain':
-      case 'Drizzle':
-        return cilRain
-      case 'Clouds':
-        return cilCloud
-      case 'Snow':
-        return cilSnowflake
-      default:
-        return cilCloudy
-    }
+  const buttonStyle = {
+    fontSize: '1.25rem', // 글씨 크기를 크게 설정
+    fontWeight: 'bold', // 글씨를 굵게 설정
+  }
+
+  const dropdownItemStyle = {
+    fontSize: '1.25rem', // 글씨 크기를 크게 설정
+    fontWeight: 'bold', // 글씨를 굵게 설정
   }
 
   return (
-    <CHeader position="sticky" className="bg-primary mb-4 p-0" ref={headerRef}>
+    <CHeader position="sticky" className="bg-primary mb-4 p-0">
       <CContainer fluid className="d-flex justify-content-between align-items-center">
-        <div className="text-white ms-auto me-3 d-flex align-items-center">
-          {weather && (
-            <div className="me-4 d-flex align-items-center">
-              <CIcon icon={getWeatherIcon(weather.weather[0].main)} size="xl" className="me-2" />
-              <div>
-                <strong>{weather.main.temp}°C</strong> - {weather.weather[0].description}
-              </div>
-              <div className="ms-4">
-                <strong>{currentTime}</strong>
-              </div>
-            </div>
-          )}
-          {error && <div className="me-4">{error}</div>}
+        <div className="d-flex align-items-center">
+          <CButton
+            color="primary"
+            className="me-3 text-white"
+            onClick={() => handleNavigate('/temperature-humidity')}
+            style={buttonStyle}
+          >
+            온도/습도
+          </CButton>
+          <CButton
+            color="primary"
+            className="me-3 text-white"
+            onClick={() => handleNavigate('/air-quality')}
+            style={buttonStyle}
+          >
+            미세먼지
+          </CButton>
+          <CButton
+            color="primary"
+            className="me-3 text-white"
+            onClick={() => handleNavigate('/dashboard')}
+            style={buttonStyle}
+          >
+            전력량
+          </CButton>
+        </div>
+
+        <div className="d-flex align-items-center ms-auto">
+          <CDropdown className="ms-4">
+            <CDropdownToggle color="primary" className="text-white" style={buttonStyle}>
+              <CIcon icon={cilSettings} size="xl" />
+            </CDropdownToggle>
+            <CDropdownMenu>
+              <CDropdownItem onClick={() => handleNavigate('/artwork')} style={dropdownItemStyle}>
+                명화 설정
+              </CDropdownItem>
+              <CDropdownItem onClick={() => handleNavigate('/poster')} style={dropdownItemStyle}>
+                표어포스터설정
+              </CDropdownItem>
+              <CDropdownItem onClick={() => handleNavigate('/video')} style={dropdownItemStyle}>
+                동영상 설정
+              </CDropdownItem>
+            </CDropdownMenu>
+          </CDropdown>
         </div>
       </CContainer>
     </CHeader>
