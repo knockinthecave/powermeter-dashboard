@@ -14,7 +14,6 @@ const Video = () => {
             margin: 0,
             padding: 0,
           }}
-          controls
           autoPlay
           loop
           muted
