@@ -19,12 +19,16 @@ const images = [
 
 const ArtWork = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [fade, setFade] = useState(true)
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      // 이미지를 순서대로 변경
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length)
-    }, 10000)
+      setFade(false)
+      setTimeout(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length)
+        setFade(true)
+      }, 500) // 500ms 동안 페이드 아웃 후 이미지 전환
+    }, 15000) // 15초마다 이미지 변경
 
     // 컴포넌트가 언마운트될 때 타이머를 정리합니다.
     return () => clearInterval(intervalId)
@@ -43,6 +47,8 @@ const ArtWork = () => {
             width: '100%',
             margin: 0,
             padding: 0,
+            transition: 'opacity 0.5s ease-in-out',
+            opacity: fade ? 1 : 0,
           }}
         />
         <audio src={Debussy} autoPlay loop />
