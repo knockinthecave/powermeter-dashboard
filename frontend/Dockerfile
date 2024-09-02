@@ -1,25 +1,25 @@
-# Node.js 이미지 사용
-FROM node:16
+# Node.js 이미지를 기반으로 설정
+FROM node:18-alpine
 
-# 작업 디렉터리 설정
+# 작업 디렉토리를 설정
 WORKDIR /app
 
-# 패키지 설치
-COPY package*.json ./
-RUN npm install --offline
+# package.json과 package-lock.json을 복사하고 필요한 Node.js 패키지를 설치
+COPY package.json package-lock.json ./
+RUN npm install
 
-# 프로젝트 파일 복사
+# 애플리케이션 코드를 복사
 COPY . .
 
-# React 빌드
+# 빌드 명령어 실행
 RUN npm run build
 
-# Nginx 이미지 사용
+# Nginx를 사용하여 빌드된 파일을 제공
 FROM nginx:alpine
 COPY --from=0 /app/build /usr/share/nginx/html
 
-# Nginx 포트 노출
-EXPOSE 80
+# Nginx 설정 파일을 복사
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Nginx 실행
 CMD ["nginx", "-g", "daemon off;"]
