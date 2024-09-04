@@ -9,8 +9,6 @@ import {
   CRow,
   CWidgetStatsF,
 } from '@coreui/react-pro'
-import { CIcon } from '@coreui/icons-react'
-import { cilSpeedometer } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
 
 const Dashboard = () => {
@@ -19,11 +17,49 @@ const Dashboard = () => {
 
   // 예시 데이터
   const airQualityData = {
-    PM10: 120,
-    PM25: 80,
+    PM10: 100,
+    PM25: 40,
     CO2: 500,
     temperature: 25,
-    humidity: 55,
+    humidity: 45,
+  }
+
+  const getEmojiForPM = (pmValue) => {
+    if (pmValue > 150) {
+      return '😷' // 매우 나쁨 (마스크 이모티콘)
+    } else if (pmValue > 100) {
+      return '😐' // 나쁨 (중립 이모티콘)
+    } else if (pmValue > 50) {
+      return '🙂' // 보통 (보통 이모티콘)
+    } else {
+      return '😃' // 좋음 (웃는 이모티콘)
+    }
+  }
+
+  // 온도에 따른 이모티콘
+  const getEmojiForTemperature = (temp) => {
+    if (temp > 30) {
+      return '🥵' // 너무 더움
+    } else if (temp > 25) {
+      return '😅' // 더움
+    } else if (temp > 15) {
+      return '😊' // 적당함
+    } else if (temp > 5) {
+      return '🥶' // 추움
+    } else {
+      return '❄️' // 매우 추움
+    }
+  }
+
+  // 습도에 따른 이모티콘
+  const getEmojiForHumidity = (humidity) => {
+    if (humidity > 70) {
+      return '💦' // 습함
+    } else if (humidity > 40) {
+      return '😊' // 적당함
+    } else {
+      return '🌵' // 건조함
+    }
   }
 
   const smokeQualityData = {
@@ -88,36 +124,42 @@ const Dashboard = () => {
         <CWidgetStatsF
           className="mb-3"
           color="primary"
-          icon={<CIcon icon={cilSpeedometer} height={24} />}
-          title="현재 유효전력"
-          value="3.074 kW"
+          icon={<span style={{ fontSize: '2rem' }}>{getEmojiForPM(airQualityData.PM10)}</span>}
+          title="PM10(미세먼지)"
+          value={`${airQualityData.PM10} µg/m³`}
         />
       </CCol>
       <CCol md={3}>
         <CWidgetStatsF
           className="mb-3"
           color="info"
-          icon={<CIcon icon={cilSpeedometer} height={24} />}
-          title="현재 무효전력"
-          value="4.025 kvar"
+          icon={<span style={{ fontSize: '2rem' }}>{getEmojiForPM(airQualityData.PM25)}</span>}
+          title="PM2.5(초미세먼지)"
+          value={`${airQualityData.PM25} µg/m³`}
         />
       </CCol>
       <CCol md={3}>
         <CWidgetStatsF
           className="mb-3"
           color="warning"
-          icon={<CIcon icon={cilSpeedometer} height={24} />}
+          icon={
+            <span style={{ fontSize: '2rem' }}>
+              {getEmojiForTemperature(airQualityData.temperature)}
+            </span>
+          }
           title="실내온도"
-          value="25.4 °C"
+          value={`${airQualityData.temperature} °C`}
         />
       </CCol>
       <CCol md={3}>
         <CWidgetStatsF
           className="mb-3"
           color="danger"
-          icon={<CIcon icon={cilSpeedometer} height={24} />}
+          icon={
+            <span style={{ fontSize: '2rem' }}>{getEmojiForHumidity(airQualityData.humidity)}</span>
+          }
           title="실내습도"
-          value="54.2 %"
+          value={`${airQualityData.humidity} %`}
         />
       </CCol>
       <CCol md={6}>
