@@ -15,13 +15,14 @@ import { CFormSelect, CRow, CSpinner } from '@coreui/react-pro'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
+// 각 지역의 위도와 경도 정보 추가
 const regionCodes = {
-  서울: '108',
-  인천: '112',
-  수원: '119',
-  전주: '146',
-  광주: '156',
-  광양시: '266',
+  서울: { code: '108', lat: 37.5665, lon: 126.978 },
+  인천: { code: '112', lat: 37.4563, lon: 126.7052 },
+  수원: { code: '119', lat: 37.2636, lon: 127.0286 },
+  전주: { code: '146', lat: 35.8242, lon: 127.147 },
+  광주: { code: '156', lat: 35.1595, lon: 126.8526 },
+  광양시: { code: '266', lat: 34.9407, lon: 127.6956 }, // 광양시 추가
 }
 
 // 날짜를 YYYYMMDD 형식으로 변환하는 함수
@@ -30,6 +31,19 @@ const formatDate = (date) => {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}${month}${day}`
+}
+
+// 두 지점 간의 거리를 계산하는 함수 (Haversine Formula)
+const getDistance = (lat1, lon1, lat2, lon2) => {
+  const toRad = (value) => (value * Math.PI) / 180
+  const R = 6371 // 지구의 반지름 (킬로미터 단위)
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c // 거리 반환 (킬로미터)
 }
 
 function TemperatureHumidity() {
@@ -52,7 +66,7 @@ function TemperatureHumidity() {
       endDate.setDate(endDate.getDate() - 1)
       const formattedEndDate = formatDate(endDate)
 
-      const stationId = regionCodes[selectedRegion]
+      const stationId = regionCodes[selectedRegion].code
 
       const url = `http://apis.data.go.kr/1360000/AsosDalyInfoService/getWthrDataList?serviceKey=${apiKey}&dataType=JSON&startDt=${formattedStartDate}&endDt=${formattedEndDate}&stnIds=${stationId}&numOfRows=10&pageNo=1&dataCd=ASOS&dateCd=DAY`
 
@@ -94,6 +108,43 @@ function TemperatureHumidity() {
 
     fetchWeatherData()
   }, [selectedRegion])
+
+  // 사용자의 현재 위치를 기반으로 가장 가까운 지역 자동 선택
+  useEffect(() => {
+    const fetchLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords
+            let closestRegion = '서울'
+            let minDistance = Infinity
+
+            // 각 지역과 현재 위치의 거리를 계산
+            for (const region in regionCodes) {
+              const distance = getDistance(
+                latitude,
+                longitude,
+                regionCodes[region].lat,
+                regionCodes[region].lon,
+              )
+              if (distance < minDistance) {
+                minDistance = distance
+                closestRegion = region
+              }
+            }
+
+            // 가장 가까운 지역 설정
+            setSelectedRegion(closestRegion)
+          },
+          (error) => {
+            console.error('위치 정보를 가져올 수 없습니다.', error)
+          },
+        )
+      }
+    }
+
+    fetchLocation()
+  }, [])
 
   const handleRegionChange = (event) => {
     setSelectedRegion(event.target.value)

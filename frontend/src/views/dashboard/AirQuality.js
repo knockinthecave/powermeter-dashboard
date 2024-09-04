@@ -15,13 +15,27 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
+// 각 지역의 위도와 경도 정보 추가
 const regionCodes = {
-  서울: 'seoul',
-  경기: 'gyeonggi',
-  인천: 'incheon',
-  광주: 'gwangju',
-  전북: 'jeonbuk',
-  전남: 'jeonnam',
+  서울: { code: 'seoul', lat: 37.5665, lon: 126.978 },
+  경기: { code: 'gyeonggi', lat: 37.4138, lon: 127.5183 },
+  인천: { code: 'incheon', lat: 37.4563, lon: 126.7052 },
+  광주: { code: 'gwangju', lat: 35.1595, lon: 126.8526 },
+  전북: { code: 'jeonbuk', lat: 35.7175, lon: 127.153 },
+  전남: { code: 'jeonnam', lat: 34.8679, lon: 126.991 },
+}
+
+// 두 지점 간의 거리를 계산하는 함수 (Haversine Formula)
+const getDistance = (lat1, lon1, lat2, lon2) => {
+  const toRad = (value) => (value * Math.PI) / 180
+  const R = 6371 // 지구의 반지름 (킬로미터 단위)
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c // 거리 반환 (킬로미터)
 }
 
 function AirQuality() {
@@ -33,7 +47,7 @@ function AirQuality() {
   useEffect(() => {
     const fetchData = async () => {
       const apiKey = process.env.REACT_APP_AIRKOREA_API_KEY
-      const region = regionCodes[selectedRegion]
+      const region = regionCodes[selectedRegion].code
 
       const PM10url = `http://apis.data.go.kr/B552584/ArpltnStatsSvc/getCtprvnMesureLIst?serviceKey=${apiKey}&returnType=json&numOfRows=100&pageNo=1&dataGubun=DAILY&searchCondition=WEEK&itemCode=PM10`
       const PM25url = `http://apis.data.go.kr/B552584/ArpltnStatsSvc/getCtprvnMesureLIst?serviceKey=${apiKey}&returnType=json&numOfRows=100&pageNo=1&dataGubun=DAILY&searchCondition=WEEK&itemCode=PM25`
@@ -83,6 +97,44 @@ function AirQuality() {
 
     fetchData()
   }, [selectedRegion])
+
+  useEffect(() => {
+    // 현재 위치를 기반으로 가장 가까운 지역을 자동 선택
+    const fetchLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords
+            // 기본값 서울로 설정
+            let closestRegion = '서울'
+            let minDistance = Infinity
+
+            // 모든 지역과 현재 위치의 거리를 계산
+            for (const region in regionCodes) {
+              const distance = getDistance(
+                latitude,
+                longitude,
+                regionCodes[region].lat,
+                regionCodes[region].lon,
+              )
+              if (distance < minDistance) {
+                minDistance = distance
+                closestRegion = region
+              }
+            }
+
+            // 가장 가까운 지역으로 설정
+            setSelectedRegion(closestRegion)
+          },
+          (error) => {
+            console.error('위치 정보를 가져올 수 없습니다.', error)
+          },
+        )
+      }
+    }
+
+    fetchLocation()
+  }, [])
 
   const handleRegionChange = (event) => {
     setSelectedRegion(event.target.value)
