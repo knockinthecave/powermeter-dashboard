@@ -11,6 +11,8 @@ const Typography = React.lazy(() => import('./views/theme/typography/Typography'
 const ArtWork = React.lazy(() => import('./views/pages/settings/ArtWork'))
 const Poster = React.lazy(() => import('./views/pages/settings/Poster'))
 const Video = React.lazy(() => import('./views/pages/settings/Video'))
+const TemperatureHumidity = React.lazy(() => import('./views/dashboard/TemperatureHumidity'))
+const AirQuality = React.lazy(() => import('./views/dashboard/AirQuality'))
 
 // Base
 const Accordion = React.lazy(() => import('./views/base/accordion/Accordion'))
@@ -84,6 +86,8 @@ const routes = [
   { path: '/artwork', name: 'ArtWork', element: ArtWork },
   { path: '/poster', name: 'Poster', element: Poster },
   { path: '/video', name: 'Video', element: Video },
+  { path: '/temperature-humidity', name: 'TemperatureHumidity', element: TemperatureHumidity },
+  { path: '/air-quality', name: 'AirQuality', element: AirQuality },
   {
     path: '/theme',
     name: <Translation>{(t) => t('theme')}</Translation>,
