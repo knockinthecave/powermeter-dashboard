@@ -47,6 +47,9 @@ INSTALLED_APPS = [
     # Swagger
     # drf-yasg가 아니라 drf_yasg임.
     'drf_yasg',
+
+    # CORS
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -58,6 +61,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,6 +70,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS').split(',')
 
 ROOT_URLCONF = 'powermonitoring.urls'
 
@@ -99,6 +105,9 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
+        'TEST': {
+            'NAME': config('DB_NAME_TEST'),
+        },
     }
 }
 

@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "db_table": "AirQuality",
-                "managed": False,
+                "managed": True,
             },
         ),
         migrations.CreateModel(
@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "db_table": "HeatSmokeDetector",
-                "managed": False,
+                "managed": True,
             },
         ),
         migrations.CreateModel(
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "db_table": "PowerMeter1",
-                "managed": False,
+                "managed": True,
             },
         ),
         migrations.CreateModel(
@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "db_table": "PowerMeter2",
-                "managed": False,
+                "managed": True,
             },
         ),
         migrations.CreateModel(
@@ -100,7 +100,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "db_table": "PowerMeter3",
-                "managed": False,
+                "managed": True,
             },
         ),
         migrations.CreateModel(
@@ -121,7 +121,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "db_table": "PowerMeter4",
-                "managed": False,
+                "managed": True,
             },
         ),
         migrations.DeleteModel(

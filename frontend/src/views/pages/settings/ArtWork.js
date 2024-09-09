@@ -36,7 +36,14 @@ const ArtWork = () => {
 
   return (
     <CRow className="justify-content-center">
-      <CContainer fluid className="p-0 m-0" style={{ height: '100vh' }}>
+      <CContainer
+        fluid
+        className="p-0 m-0"
+        style={{
+          height: '90vh',
+          overflow: 'hidden',
+        }}
+      >
         <div
           style={{
             backgroundImage: `url(${images[currentIndex]})`,

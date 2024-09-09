@@ -5,7 +5,7 @@ import VideoFile from 'src/assets/videos/korea.mp4'
 const Video = () => {
   return (
     <CRow className="justify-content-center">
-      <CContainer fluid className="p-0 m-0" style={{ height: '100vh' }}>
+      <CContainer fluid className="p-0 m-0" style={{ height: '90vh' }}>
         <video
           src={VideoFile}
           style={{

@@ -19,7 +19,7 @@ const Poster = () => {
 
   return (
     <CRow className="justify-content-center">
-      <CContainer fluid className="p-0 m-0" style={{ height: '100vh' }}>
+      <CContainer fluid className="p-0 m-0" style={{ height: '90vh' }}>
         <div
           style={{
             backgroundImage: `url(${images[currentIndex]})`,

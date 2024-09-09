@@ -23,7 +23,7 @@ class HeatSmokeDetector(models.Model):
     collection_time = models.DateTimeField()
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = "HeatSmokeDetector"
 
 
