@@ -1,28 +1,26 @@
 import React, { useEffect, useState } from 'react'
 import { CRow, CContainer } from '@coreui/react-pro'
-import artworkImage1 from 'src/assets/images/settings/poster/2023_public.jpg'
+import evacuationGuideMap from 'src/assets/images/settings/evacuation_route/evacuation.jpg'
+import './EvacuationGuideMap.css' // CSS 파일로 스타일 추가
 
-const images = [artworkImage1]
-
-const Poster = () => {
+const EvacuationGuideMap = () => {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      // 이미지를 순서대로 변경
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length)
-    }, 5000)
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % 2) // 예시로 두 가지 상태로 깜빡임
+    }, 500) // 0.5초마다 깜빡임
 
-    // 컴포넌트가 언마운트될 때 타이머를 정리합니다.
     return () => clearInterval(intervalId)
   }, [])
 
   return (
     <CRow className="justify-content-center">
-      <CContainer fluid className="p-0 m-0" style={{ height: '90vh' }}>
+      <CContainer fluid className="p-0 m-0 evacuation-map-container">
         <div
+          className={`evacuation-map-background ${currentIndex === 0 ? 'blink-on' : 'blink-off'}`}
           style={{
-            backgroundImage: `url(${images[currentIndex]})`,
+            backgroundImage: `url(${evacuationGuideMap})`,
             backgroundSize: 'contain',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
@@ -37,4 +35,4 @@ const Poster = () => {
   )
 }
 
-export default Poster
+export default EvacuationGuideMap

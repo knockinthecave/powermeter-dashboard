@@ -1,0 +1,17 @@
+.evacuation-map-container {
+  height: 90vh;
+  position: relative;
+}
+
+.evacuation-map-background {
+  position: relative;
+  transition: background-color 0.5s ease-in-out;
+}
+
+.blink-on {
+  background-color: red;
+}
+
+.blink-off {
+  background-color: transparent;
+}

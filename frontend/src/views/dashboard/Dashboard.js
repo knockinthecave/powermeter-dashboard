@@ -38,10 +38,9 @@ function GaugePointer() {
 }
 
 const Dashboard = () => {
-  // const random = () => Math.round(Math.random() * 100)
   const navigate = useNavigate()
+
   // 예시 데이터
-  // 상태를 정의
   const [airQualityData, setAirQualityData] = useState({
     PM10: 0,
     PM25: 0,
@@ -271,17 +270,29 @@ const Dashboard = () => {
     return () => clearInterval(intervalId)
   }, [])
 
-  const powerMeterClick = () => {
-    navigate('/dashboard/power-meter')
+  const powerMeter1Click = () => {
+    navigate('/dashboard/power-meter-1')
   }
 
-  const airQualitySensorClick = () => {
-    navigate('/dashboard/air-quality-sensor')
+  const powerMeter2Click = () => {
+    navigate('/dashboard/power-meter-2')
   }
 
-  const heatSmokeSensorClick = () => {
-    navigate('/dashboard/heat-smoke-sensor')
+  const powerMeter3Click = () => {
+    navigate('/dashboard/power-meter-3')
   }
+
+  const powerMeter4Click = () => {
+    navigate('/dashboard/power-meter-4')
+  }
+
+  // const airQualitySensorClick = () => {
+  // navigate('/dashboard/air-quality-sensor')
+  // }
+
+  // const heatSmokeSensorClick = () => {
+  // navigate('/dashboard/heat-smoke-sensor')
+  //}
 
   const digitalMultiMeterClick = () => {
     navigate('/dashboard/digital-multi-meter')
@@ -304,9 +315,9 @@ const Dashboard = () => {
             </CCardSubtitle>
             <CRow>
               {/* Voltage (as Gauge) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">전압</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">전압</div>
                   <GaugeContainer
                     width={250}
                     height={250}
@@ -333,9 +344,9 @@ const Dashboard = () => {
               </CCol>
 
               {/* Active Power ΣP (as Gauge) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">유효전력</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">유효전력</div>
                   <GaugeContainer
                     width={250}
                     height={250}
@@ -343,14 +354,14 @@ const Dashboard = () => {
                     endAngle={110}
                     value={normalizedActivePower}
                     minValue={0}
-                    maxValue={5000} // Adjust your maxValue based on actual power range
+                    maxValue={100} // Adjust your maxValue based on actual power range
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.P < 2500
-                          ? '#00FF00'
-                          : multiMetaData.P < 4000
+                        multiMetaData.P < (2500 / maxActivePower) * 100
+                          ? 'red'
+                          : multiMetaData.P < (4000 / maxActivePower) * 100
                             ? '#FFFF00'
                             : '#FF0000'
                       }
@@ -360,17 +371,17 @@ const Dashboard = () => {
                   <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
                 </div>
               </CCol>
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">주파수</div>
+                  <div className="fs-5 fw-semibold">주파수</div>
                   <div className="fs-3 fw-semibold">{multiMetaData.Frequency} Hz</div>
                 </div>
               </CCol>
 
               {/* Effective Energy ΣEP+ (as Text) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-5 fw-semibold">유효전력량</div>
                   <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
                 </div>
               </CCol>
@@ -380,16 +391,16 @@ const Dashboard = () => {
         </CCard>
       </CCol>
       <CCol md={6}>
-        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+        <CCard className="mb-4" onClick={powerMeter1Click} style={{ cursor: 'pointer' }}>
           <CCardBody className="p-4">
             <CCardTitle className="fs-4 fw-semibold">전력량계 1</CCardTitle>
             <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
               약 {calculateTimeDifference(powerMeter1Data.collectionTime)}
             </CCardSubtitle>
             <CRow>
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">전압 단상</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">전압 단상</div>
                   <GaugeContainer
                     width={200}
                     height={200}
@@ -416,9 +427,9 @@ const Dashboard = () => {
               </CCol>
 
               {/* Active Power ΣP (as Gauge) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">유효전력</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">유효전력</div>
                   <GaugeContainer
                     width={200}
                     height={200}
@@ -443,17 +454,17 @@ const Dashboard = () => {
                   <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
                 </div>
               </CCol>
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">전류 단상</div>
+                  <div className="fs-5 fw-semibold">전류 단상</div>
                   <div className="fs-3 fw-semibold">112 A</div>
                 </div>
               </CCol>
 
               {/* Effective Energy ΣEP+ (as Text) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-5 fw-semibold">유효전력량</div>
                   <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
                 </div>
               </CCol>
@@ -462,16 +473,16 @@ const Dashboard = () => {
         </CCard>
       </CCol>
       <CCol md={6}>
-        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+        <CCard className="mb-4" onClick={powerMeter2Click} style={{ cursor: 'pointer' }}>
           <CCardBody className="p-4">
             <CCardTitle className="fs-4 fw-semibold">전력량계 2</CCardTitle>
             <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
               약 {calculateTimeDifference(powerMeter2Data.collectionTime)}
             </CCardSubtitle>
             <CRow>
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">전압 단상</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">전압 단상</div>
                   <GaugeContainer
                     width={200}
                     height={200}
@@ -498,9 +509,9 @@ const Dashboard = () => {
               </CCol>
 
               {/* Active Power ΣP (as Gauge) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">유효전력</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">유효전력</div>
                   <GaugeContainer
                     width={200}
                     height={200}
@@ -525,17 +536,17 @@ const Dashboard = () => {
                   <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
                 </div>
               </CCol>
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">전류 단상</div>
+                  <div className="fs-5 fw-semibold">전류 단상</div>
                   <div className="fs-3 fw-semibold">112 A</div>
                 </div>
               </CCol>
 
               {/* Effective Energy ΣEP+ (as Text) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-5 fw-semibold">유효전력량</div>
                   <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
                 </div>
               </CCol>
@@ -544,16 +555,16 @@ const Dashboard = () => {
         </CCard>
       </CCol>
       <CCol md={6}>
-        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+        <CCard className="mb-4" onClick={powerMeter3Click} style={{ cursor: 'pointer' }}>
           <CCardBody className="p-4">
             <CCardTitle className="fs-4 fw-semibold">전력량계 3</CCardTitle>
             <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
               약 {calculateTimeDifference(powerMeter3Data.collectionTime)}
             </CCardSubtitle>
             <CRow>
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">전압 단상</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">전압 단상</div>
                   <GaugeContainer
                     width={200}
                     height={200}
@@ -580,9 +591,9 @@ const Dashboard = () => {
               </CCol>
 
               {/* Active Power ΣP (as Gauge) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">유효전력</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">유효전력</div>
                   <GaugeContainer
                     width={200}
                     height={200}
@@ -607,17 +618,17 @@ const Dashboard = () => {
                   <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
                 </div>
               </CCol>
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">전류 단상</div>
+                  <div className="fs-5 fw-semibold">전류 단상</div>
                   <div className="fs-3 fw-semibold">112 A</div>
                 </div>
               </CCol>
 
               {/* Effective Energy ΣEP+ (as Text) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-5 fw-semibold">유효전력량</div>
                   <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
                 </div>
               </CCol>
@@ -626,16 +637,16 @@ const Dashboard = () => {
         </CCard>
       </CCol>
       <CCol md={6}>
-        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+        <CCard className="mb-4" onClick={powerMeter4Click} style={{ cursor: 'pointer' }}>
           <CCardBody className="p-4">
             <CCardTitle className="fs-4 fw-semibold">전력량계 4</CCardTitle>
             <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
               약 {calculateTimeDifference(powerMeter4Data.collectionTime)}
             </CCardSubtitle>
             <CRow>
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">전압 단상</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">전압 단상</div>
                   <GaugeContainer
                     width={200}
                     height={200}
@@ -662,9 +673,9 @@ const Dashboard = () => {
               </CCol>
 
               {/* Active Power ΣP (as Gauge) */}
-              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
-                <div className="mb-4 text-center" style={{ width: '200px' }}>
-                  <div className="text-body-secondary text-truncate small">유효전력</div>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">유효전력</div>
                   <GaugeContainer
                     width={200}
                     height={200}
@@ -691,7 +702,7 @@ const Dashboard = () => {
               </CCol>
               <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">전류 단상</div>
+                  <div className="fs-5 fw-semibold">전류 단상</div>
                   <div className="fs-3 fw-semibold">112 A</div>
                 </div>
               </CCol>
@@ -699,7 +710,7 @@ const Dashboard = () => {
               {/* Effective Energy ΣEP+ (as Text) */}
               <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
-                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-5 fw-semibold">유효전력량</div>
                   <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
                 </div>
               </CCol>
@@ -708,7 +719,7 @@ const Dashboard = () => {
         </CCard>
       </CCol>
       <CCol md={6}>
-        <CCard className="mb-4" onClick={airQualitySensorClick} style={{ cursor: 'pointer' }}>
+        <CCard className="mb-4" style={{ cursor: 'pointer' }}>
           <CCardBody className="p-4">
             <CCardTitle className="fs-4 fw-semibold">실내 공기질 복합센서</CCardTitle>
             <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
@@ -796,7 +807,7 @@ const Dashboard = () => {
         </CCard>
       </CCol>
       <CCol md={6}>
-        <CCard className="mb-4" onClick={heatSmokeSensorClick} style={{ cursor: 'pointer' }}>
+        <CCard className="mb-4" style={{ cursor: 'pointer' }}>
           <CCardBody className="p-4">
             <CCardTitle className="fs-4 fw-semibold">열연기 감지기</CCardTitle>
             <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">

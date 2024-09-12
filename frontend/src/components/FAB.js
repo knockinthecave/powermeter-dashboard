@@ -80,6 +80,7 @@ const FAB = () => {
         <MenuItem onClick={() => handleMenuClick('/artwork')}>명화 설정</MenuItem>
         <MenuItem onClick={() => handleMenuClick('/poster')}>표어포스터 설정</MenuItem>
         <MenuItem onClick={() => handleMenuClick('/video')}>동영상 설정</MenuItem>
+        <MenuItem onClick={() => handleMenuClick('/evacuation-guide-map')}>연기감지 Test</MenuItem>
       </Menu>
     </>
   )

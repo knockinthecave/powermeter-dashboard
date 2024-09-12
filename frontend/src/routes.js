@@ -2,7 +2,10 @@ import React from 'react'
 import { Translation } from 'react-i18next'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
-const PowerMeter = React.lazy(() => import('./views/dashboard/details/PowerMeter'))
+const PowerMeter1 = React.lazy(() => import('./views/dashboard/details/PowerMeter1'))
+const PowerMeter2 = React.lazy(() => import('./views/dashboard/details/PowerMeter2'))
+const PowerMeter3 = React.lazy(() => import('./views/dashboard/details/PowerMeter3'))
+const PowerMeter4 = React.lazy(() => import('./views/dashboard/details/PowerMeter4'))
 const AirQualitySensor = React.lazy(() => import('./views/dashboard/details/AirQualitySensor'))
 const HeatSmokeSensor = React.lazy(() => import('./views/dashboard/details/HeatSmokeSensor'))
 const DigitalMultiMeter = React.lazy(() => import('./views/dashboard/details/DigitalMultiMeter'))
@@ -11,6 +14,7 @@ const Typography = React.lazy(() => import('./views/theme/typography/Typography'
 const ArtWork = React.lazy(() => import('./views/pages/settings/ArtWork'))
 const Poster = React.lazy(() => import('./views/pages/settings/Poster'))
 const Video = React.lazy(() => import('./views/pages/settings/Video'))
+const EvacuationGuideMap = React.lazy(() => import('./views/pages/settings/EvacuationGuideMap'))
 const TemperatureHumidity = React.lazy(() => import('./views/dashboard/TemperatureHumidity'))
 const AirQuality = React.lazy(() => import('./views/dashboard/AirQuality'))
 
@@ -79,13 +83,17 @@ const routes = [
     name: <Translation>{(t) => t('dashboard')}</Translation>,
     element: Dashboard,
   },
-  { path: '/dashboard/power-meter', name: 'PowerMeter', element: PowerMeter },
+  { path: '/dashboard/power-meter-1', name: 'PowerMeter1', element: PowerMeter1 },
+  { path: '/dashboard/power-meter-2', name: 'PowerMeter2', element: PowerMeter2 },
+  { path: '/dashboard/power-meter-3', name: 'PowerMeter3', element: PowerMeter3 },
+  { path: '/dashboard/power-meter-4', name: 'PowerMeter4', element: PowerMeter4 },
   { path: '/dashboard/air-quality-sensor', name: 'AirQualitySensor', element: AirQualitySensor },
   { path: '/dashboard/heat-smoke-sensor', name: 'HeatSmokeSensor', element: HeatSmokeSensor },
   { path: '/dashboard/digital-multi-meter', name: 'DigitalMultiMeter', element: DigitalMultiMeter },
   { path: '/artwork', name: 'ArtWork', element: ArtWork },
   { path: '/poster', name: 'Poster', element: Poster },
   { path: '/video', name: 'Video', element: Video },
+  { path: '/evacuation-guide-map', name: 'EvacuationGuideMap', element: EvacuationGuideMap },
   { path: '/temperature-humidity', name: 'TemperatureHumidity', element: TemperatureHumidity },
   { path: '/air-quality', name: 'AirQuality', element: AirQuality },
   {

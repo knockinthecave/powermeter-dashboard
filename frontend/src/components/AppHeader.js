@@ -1,5 +1,6 @@
 import React from 'react'
 import { CCol, CWidgetStatsC, CRow } from '@coreui/react-pro'
+import { useNavigate } from 'react-router-dom'
 
 const AppHeader = () => {
   // Example data for air quality
@@ -34,57 +35,67 @@ const AppHeader = () => {
     }
   }
 
+  const navigate = useNavigate()
+  const temperatureHumidityClick = () => {
+    navigate('/temperature-humidity')
+  }
+  const airQualityClick = () => {
+    navigate('/air-quality')
+  }
+
   return (
-    <React.Fragment>
-      <CRow>
-        <CCol md={3}>
-          <CWidgetStatsC
-            className="mb-3"
-            progress={{ color: 'info', value: (exampleAirQualityData.temperature / 50) * 100 }}
-            text="실시간 온도"
-            title="온도"
-            value={<span style={{ fontSize: '2rem' }}>{exampleAirQualityData.temperature}°C</span>}
-          />
-        </CCol>
-        <CCol md={3}>
-          <CWidgetStatsC
-            className="mb-3"
-            progress={{ color: 'info', value: (exampleAirQualityData.humidity / 100) * 100 }}
-            text="실시간 습도"
-            title="습도"
-            value={<span style={{ fontSize: '2rem' }}>{exampleAirQualityData.humidity}%</span>}
-          />
-        </CCol>
-        <CCol md={3}>
-          <CWidgetStatsC
-            className="mb-3"
-            progress={{ color: 'info', value: (exampleAirQualityData.PM10 / 150) * 100 }}
-            text="실시간 미세먼지"
-            title="실시간 미세먼지"
-            value={
-              <span style={{ fontSize: '2rem' }}>
-                {getPM10Status(exampleAirQualityData.PM10).emoji}
-                {getPM10Status(exampleAirQualityData.PM10).status}
-              </span>
-            }
-          />
-        </CCol>
-        <CCol md={3}>
-          <CWidgetStatsC
-            className="mb-3"
-            progress={{ color: 'info', value: (exampleAirQualityData.PM25 / 150) * 100 }}
-            text="실시간 초미세먼지"
-            title="실시간 초미세먼지"
-            value={
-              <span style={{ fontSize: '2rem' }}>
-                {getPM25Status(exampleAirQualityData.PM25).emoji}
-                {getPM25Status(exampleAirQualityData.PM25).status}
-              </span>
-            }
-          />
-        </CCol>
-      </CRow>
-    </React.Fragment>
+    <CRow>
+      <CCol md={3}>
+        <CWidgetStatsC
+          className="mb-3"
+          onClick={temperatureHumidityClick}
+          progress={{ color: 'info', value: (exampleAirQualityData.temperature / 50) * 100 }}
+          text="실시간 온도"
+          title="온도"
+          value={<span style={{ fontSize: '2rem' }}>{exampleAirQualityData.temperature}°C</span>}
+        />
+      </CCol>
+      <CCol md={3}>
+        <CWidgetStatsC
+          className="mb-3"
+          onClick={temperatureHumidityClick}
+          progress={{ color: 'info', value: (exampleAirQualityData.humidity / 100) * 100 }}
+          text="실시간 습도"
+          title="습도"
+          value={<span style={{ fontSize: '2rem' }}>{exampleAirQualityData.humidity}%</span>}
+        />
+      </CCol>
+      <CCol md={3}>
+        <CWidgetStatsC
+          className="mb-3"
+          onClick={airQualityClick}
+          progress={{ color: 'info', value: (exampleAirQualityData.PM10 / 150) * 100 }}
+          text="실시간 미세먼지"
+          title="실시간 미세먼지"
+          value={
+            <span style={{ fontSize: '2rem' }}>
+              {getPM10Status(exampleAirQualityData.PM10).emoji}
+              {getPM10Status(exampleAirQualityData.PM10).status}
+            </span>
+          }
+        />
+      </CCol>
+      <CCol md={3}>
+        <CWidgetStatsC
+          className="mb-3"
+          onClick={airQualityClick}
+          progress={{ color: 'info', value: (exampleAirQualityData.PM25 / 150) * 100 }}
+          text="실시간 초미세먼지"
+          title="실시간 초미세먼지"
+          value={
+            <span style={{ fontSize: '2rem' }}>
+              {getPM25Status(exampleAirQualityData.PM25).emoji}
+              {getPM25Status(exampleAirQualityData.PM25).status}
+            </span>
+          }
+        />
+      </CCol>
+    </CRow>
   )
 }
 
