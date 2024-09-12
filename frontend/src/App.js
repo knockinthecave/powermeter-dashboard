@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import HomeFAB from './components/HomeFAB'
+import FAB from './components/FAB'
 import { CSpinner, useColorModes } from '@coreui/react-pro'
 import './scss/style.scss'
 
@@ -58,7 +58,7 @@ const App = () => {
           <Route path="*" name="Home" element={<DefaultLayout />} />
         </Routes>
       </Suspense>
-      <HomeFAB />
+      <FAB />
     </HashRouter>
   )
 }

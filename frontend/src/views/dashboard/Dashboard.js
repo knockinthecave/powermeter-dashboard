@@ -7,15 +7,39 @@ import {
   CCol,
   CProgress,
   CRow,
-  CWidgetStatsF,
 } from '@coreui/react-pro'
+import {
+  GaugeContainer,
+  GaugeValueArc,
+  GaugeReferenceArc,
+  useGaugeState,
+} from '@mui/x-charts/Gauge'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+
+function GaugePointer() {
+  const { valueAngle, outerRadius, cx, cy } = useGaugeState()
+
+  if (valueAngle === null) {
+    // No value to display
+    return null
+  }
+
+  const target = {
+    x: cx + outerRadius * Math.sin(valueAngle),
+    y: cy - outerRadius * Math.cos(valueAngle),
+  }
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={5} fill="red" />
+      <path d={`M ${cx} ${cy} L ${target.x} ${target.y}`} stroke="red" strokeWidth={3} />
+    </g>
+  )
+}
 
 const Dashboard = () => {
   // const random = () => Math.round(Math.random() * 100)
   const navigate = useNavigate()
-
   // 예시 데이터
   // 상태를 정의
   const [airQualityData, setAirQualityData] = useState({
@@ -185,44 +209,6 @@ const Dashboard = () => {
     }
   }
 
-  const getEmojiForPM = (pmValue) => {
-    if (pmValue > 150) {
-      return '😷' // 매우 나쁨 (마스크 이모티콘)
-    } else if (pmValue > 100) {
-      return '😐' // 나쁨 (중립 이모티콘)
-    } else if (pmValue > 50) {
-      return '🙂' // 보통 (보통 이모티콘)
-    } else {
-      return '😃' // 좋음 (웃는 이모티콘)
-    }
-  }
-
-  // 온도에 따른 이모티콘
-  const getEmojiForTemperature = (temp) => {
-    if (temp > 30) {
-      return '🥵' // 너무 더움
-    } else if (temp > 25) {
-      return '😅' // 더움
-    } else if (temp > 15) {
-      return '😊' // 적당함
-    } else if (temp > 5) {
-      return '🥶' // 추움
-    } else {
-      return '❄️' // 매우 추움
-    }
-  }
-
-  // 습도에 따른 이모티콘
-  const getEmojiForHumidity = (humidity) => {
-    if (humidity > 70) {
-      return '💦' // 습함
-    } else if (humidity > 40) {
-      return '😊' // 적당함
-    } else {
-      return '🌵' // 건조함
-    }
-  }
-
   const smokeQualityData = {
     smokeDetect: 'OFF',
     temperature: 25.4,
@@ -301,49 +287,425 @@ const Dashboard = () => {
     navigate('/dashboard/digital-multi-meter')
   }
 
+  const maxGaugeVoltage = 400
+  const normalizedVoltage = (multiMetaData.VLN1 / maxGaugeVoltage) * 100
+
+  const maxActivePower = 5000
+  const normalizedActivePower = (multiMetaData.P / maxActivePower) * 100
+
   return (
     <CRow>
-      <CCol md={3}>
-        <CWidgetStatsF
-          className="mb-3"
-          color="primary"
-          icon={<span style={{ fontSize: '2rem' }}>{getEmojiForPM(airQualityData.PM10)}</span>}
-          title="PM10(미세먼지)"
-          value={`${airQualityData.PM10} µg/m³`}
-        />
+      <CCol md={12}>
+        <CCard className="mb-4" onClick={digitalMultiMeterClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">종합전력량</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              VIDER-M3
+            </CCardSubtitle>
+            <CRow>
+              {/* Voltage (as Gauge) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">전압</div>
+                  <GaugeContainer
+                    width={250}
+                    height={250}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedVoltage}
+                    minValue={0}
+                    maxValue={100}
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.VLN1 < 150
+                          ? '#00FF00'
+                          : multiMetaData.VLN1 < 300
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                </div>
+              </CCol>
+
+              {/* Active Power ΣP (as Gauge) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">유효전력</div>
+                  <GaugeContainer
+                    width={250}
+                    height={250}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedActivePower}
+                    minValue={0}
+                    maxValue={5000} // Adjust your maxValue based on actual power range
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.P < 2500
+                          ? '#00FF00'
+                          : multiMetaData.P < 4000
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">주파수</div>
+                  <div className="fs-3 fw-semibold">{multiMetaData.Frequency} Hz</div>
+                </div>
+              </CCol>
+
+              {/* Effective Energy ΣEP+ (as Text) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                </div>
+              </CCol>
+              {/* Frequency (as Text) */}
+            </CRow>
+          </CCardBody>
+        </CCard>
       </CCol>
-      <CCol md={3}>
-        <CWidgetStatsF
-          className="mb-3"
-          color="info"
-          icon={<span style={{ fontSize: '2rem' }}>{getEmojiForPM(airQualityData.PM25)}</span>}
-          title="PM2.5(초미세먼지)"
-          value={`${airQualityData.PM25} µg/m³`}
-        />
+      <CCol md={6}>
+        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">전력량계 1</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              약 {calculateTimeDifference(powerMeter1Data.collectionTime)}
+            </CCardSubtitle>
+            <CRow>
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">전압 단상</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedVoltage}
+                    minValue={0}
+                    maxValue={100}
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.VLN1 < 150
+                          ? '#00FF00'
+                          : multiMetaData.VLN1 < 300
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                </div>
+              </CCol>
+
+              {/* Active Power ΣP (as Gauge) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">유효전력</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedActivePower}
+                    minValue={0}
+                    maxValue={5000} // Adjust your maxValue based on actual power range
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.P < 2500
+                          ? '#00FF00'
+                          : multiMetaData.P < 4000
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">전류 단상</div>
+                  <div className="fs-3 fw-semibold">112 A</div>
+                </div>
+              </CCol>
+
+              {/* Effective Energy ΣEP+ (as Text) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                </div>
+              </CCol>
+            </CRow>
+          </CCardBody>
+        </CCard>
       </CCol>
-      <CCol md={3}>
-        <CWidgetStatsF
-          className="mb-3"
-          color="warning"
-          icon={
-            <span style={{ fontSize: '2rem' }}>
-              {getEmojiForTemperature(airQualityData.temperature)}
-            </span>
-          }
-          title="실내온도"
-          value={`${airQualityData.temperature} °C`}
-        />
+      <CCol md={6}>
+        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">전력량계 2</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              약 {calculateTimeDifference(powerMeter2Data.collectionTime)}
+            </CCardSubtitle>
+            <CRow>
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">전압 단상</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedVoltage}
+                    minValue={0}
+                    maxValue={100}
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.VLN1 < 150
+                          ? '#00FF00'
+                          : multiMetaData.VLN1 < 300
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                </div>
+              </CCol>
+
+              {/* Active Power ΣP (as Gauge) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">유효전력</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedActivePower}
+                    minValue={0}
+                    maxValue={5000} // Adjust your maxValue based on actual power range
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.P < 2500
+                          ? '#00FF00'
+                          : multiMetaData.P < 4000
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">전류 단상</div>
+                  <div className="fs-3 fw-semibold">112 A</div>
+                </div>
+              </CCol>
+
+              {/* Effective Energy ΣEP+ (as Text) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                </div>
+              </CCol>
+            </CRow>
+          </CCardBody>
+        </CCard>
       </CCol>
-      <CCol md={3}>
-        <CWidgetStatsF
-          className="mb-3"
-          color="danger"
-          icon={
-            <span style={{ fontSize: '2rem' }}>{getEmojiForHumidity(airQualityData.humidity)}</span>
-          }
-          title="실내습도"
-          value={`${airQualityData.humidity} %`}
-        />
+      <CCol md={6}>
+        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">전력량계 3</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              약 {calculateTimeDifference(powerMeter3Data.collectionTime)}
+            </CCardSubtitle>
+            <CRow>
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">전압 단상</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedVoltage}
+                    minValue={0}
+                    maxValue={100}
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.VLN1 < 150
+                          ? '#00FF00'
+                          : multiMetaData.VLN1 < 300
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                </div>
+              </CCol>
+
+              {/* Active Power ΣP (as Gauge) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">유효전력</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedActivePower}
+                    minValue={0}
+                    maxValue={5000} // Adjust your maxValue based on actual power range
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.P < 2500
+                          ? '#00FF00'
+                          : multiMetaData.P < 4000
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">전류 단상</div>
+                  <div className="fs-3 fw-semibold">112 A</div>
+                </div>
+              </CCol>
+
+              {/* Effective Energy ΣEP+ (as Text) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                </div>
+              </CCol>
+            </CRow>
+          </CCardBody>
+        </CCard>
+      </CCol>
+      <CCol md={6}>
+        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
+          <CCardBody className="p-4">
+            <CCardTitle className="fs-4 fw-semibold">전력량계 4</CCardTitle>
+            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
+              약 {calculateTimeDifference(powerMeter4Data.collectionTime)}
+            </CCardSubtitle>
+            <CRow>
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">전압 단상</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedVoltage}
+                    minValue={0}
+                    maxValue={100}
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.VLN1 < 150
+                          ? '#00FF00'
+                          : multiMetaData.VLN1 < 300
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                </div>
+              </CCol>
+
+              {/* Active Power ΣP (as Gauge) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center" style={{ width: '200px' }}>
+                  <div className="text-body-secondary text-truncate small">유효전력</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedActivePower}
+                    minValue={0}
+                    maxValue={5000} // Adjust your maxValue based on actual power range
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.P < 2500
+                          ? '#00FF00'
+                          : multiMetaData.P < 4000
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                </div>
+              </CCol>
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">전류 단상</div>
+                  <div className="fs-3 fw-semibold">112 A</div>
+                </div>
+              </CCol>
+
+              {/* Effective Energy ΣEP+ (as Text) */}
+              <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="text-body-secondary text-truncate small">유효전력량</div>
+                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                </div>
+              </CCol>
+            </CRow>
+          </CCardBody>
+        </CCard>
       </CCol>
       <CCol md={6}>
         <CCard className="mb-4" onClick={airQualitySensorClick} style={{ cursor: 'pointer' }}>
@@ -479,368 +841,6 @@ const Dashboard = () => {
                           : 'success'
                     }
                   />
-                </div>
-              </CCol>
-            </CRow>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol md={12}>
-        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
-          <CCardBody className="p-4">
-            <CCardTitle className="fs-4 fw-semibold">전력량계 1</CCardTitle>
-            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
-              약 {calculateTimeDifference(powerMeter1Data.collectionTime)}
-            </CCardSubtitle>
-            <CRow>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">유효전력량</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.effectiveEnergy} Wh</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">무효전력량</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.reactiveEnergy} varh</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 S상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.voltageS} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 S상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.currentS} A</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 R상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.voltageR} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 R상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.currentR} A</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">유효전력</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.activePower} W</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">무효전력</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.reactivePower} var</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 T상(단상)</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.voltageT} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 T상(단상)</div>
-                  <div className="fs-5 fw-semibold">{powerMeter1Data.currentT} A</div>
-                </div>
-              </CCol>
-            </CRow>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol md={12}>
-        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
-          <CCardBody className="p-4">
-            <CCardTitle className="fs-4 fw-semibold">전력량계 2</CCardTitle>
-            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
-              약 {calculateTimeDifference(powerMeter2Data.collectionTime)}
-            </CCardSubtitle>
-            <CRow>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">유효전력량</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.effectiveEnergy} Wh</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">무효전력량</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.reactiveEnergy} varh</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 S상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.voltageS} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 S상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.currentS} A</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 R상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.voltageR} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 R상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.currentR} A</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">유효전력</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.activePower} W</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">무효전력</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.reactivePower} var</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 T상(단상)</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.voltageT} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 T상(단상)</div>
-                  <div className="fs-5 fw-semibold">{powerMeter2Data.currentT} A</div>
-                </div>
-              </CCol>
-            </CRow>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol md={12}>
-        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
-          <CCardBody className="p-4">
-            <CCardTitle className="fs-4 fw-semibold">전력량계 3</CCardTitle>
-            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
-              약 {calculateTimeDifference(powerMeter3Data.collectionTime)}
-            </CCardSubtitle>
-            <CRow>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">유효전력량</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.effectiveEnergy} Wh</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">무효전력량</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.reactiveEnergy} varh</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 S상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.voltageS} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 S상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.currentS} A</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 R상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.voltageR} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 R상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.currentR} A</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">유효전력</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.activePower} W</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">무효전력</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.reactivePower} var</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 T상(단상)</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.voltageT} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 T상(단상)</div>
-                  <div className="fs-5 fw-semibold">{powerMeter3Data.currentT} A</div>
-                </div>
-              </CCol>
-            </CRow>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol md={12}>
-        <CCard className="mb-4" onClick={powerMeterClick} style={{ cursor: 'pointer' }}>
-          <CCardBody className="p-4">
-            <CCardTitle className="fs-4 fw-semibold">전력량계 4</CCardTitle>
-            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
-              약 {calculateTimeDifference(powerMeter4Data.collectionTime)}
-            </CCardSubtitle>
-            <CRow>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">유효전력량</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.effectiveEnergy} Wh</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">무효전력량</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.reactiveEnergy} varh</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 S상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.voltageS} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 S상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.currentS} A</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 R상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.voltageR} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 R상</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.currentR} A</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">유효전력</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.activePower} W</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">무효전력</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.reactivePower} var</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전압 T상(단상)</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.voltageT} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">전류 T상(단상)</div>
-                  <div className="fs-5 fw-semibold">{powerMeter4Data.currentT} A</div>
-                </div>
-              </CCol>
-            </CRow>
-          </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol md={12}>
-        <CCard className="mb-4" onClick={digitalMultiMeterClick} style={{ cursor: 'pointer' }}>
-          <CCardBody className="p-4">
-            <CCardTitle className="fs-4 fw-semibold">디지털 멀티메타</CCardTitle>
-            <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
-              VIDER-M3
-            </CCardSubtitle>
-            <CRow>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">
-                    V<sub>LN1</sub>
-                  </div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.VLN1} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">
-                    V<sub>LN2</sub>
-                  </div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.VLN2} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">
-                    V<sub>LN3</sub>
-                  </div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.VLN3} V</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">
-                    U<sub>LL12</sub>
-                  </div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.ULL12} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">
-                    U<sub>LL23</sub>
-                  </div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.ULL23} V</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">
-                    U<sub>LL31</sub>
-                  </div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.ULL31} V</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">Frequency</div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.Frequency} Hz</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">VTHD</div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.VTHD} %</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">ITHD</div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.ITHD} %</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">
-                    I<sub>1</sub>
-                  </div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.I1} A</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">
-                    I<sub>2</sub>
-                  </div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.I2} A</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">
-                    I<sub>3</sub>
-                  </div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.I3} A</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">&Sigma;P</div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.P} W</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">&Sigma;Q</div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.Q} var</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">&Sigma;S</div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.S} VA</div>
-                </div>
-              </CCol>
-              <CCol xs={6} md={4} xl={2}>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">3PF</div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.PF} W</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">&Sigma;EP+</div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.EPPlus} Wh</div>
-                </div>
-                <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">&Sigma;EP-</div>
-                  <div className="fs-5 fw-semibold">{multiMetaData.EPMinus} Wh</div>
                 </div>
               </CCol>
             </CRow>
