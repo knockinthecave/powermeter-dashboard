@@ -1,27 +1,50 @@
 import React from 'react'
 import { CCard, CCardBody, CCardSubtitle, CCardTitle, CCol, CRow } from '@coreui/react-pro'
+import {
+  GaugeContainer,
+  GaugeValueArc,
+  GaugeReferenceArc,
+  useGaugeState,
+} from '@mui/x-charts/Gauge'
+
+function GaugePointer() {
+  const { valueAngle, outerRadius, cx, cy } = useGaugeState()
+
+  if (valueAngle === null) {
+    return null
+  }
+
+  const target = {
+    x: cx + outerRadius * Math.sin(valueAngle),
+    y: cy - outerRadius * Math.cos(valueAngle),
+  }
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={5} fill="red" />
+      <path d={`M ${cx} ${cy} L ${target.x} ${target.y}`} stroke="red" strokeWidth={7} />
+    </g>
+  )
+}
 
 const DigitalMultiMeter = () => {
   const multiMetaData = {
-    VLN1: 230.5, // 단위: V
-    VLN2: 231.2, // 단위: V
-    VLN3: 229.8, // 단위: V
-    ULL12: 398.5, // 단위: V
-    ULL23: 399.1, // 단위: V
-    ULL31: 397.8, // 단위: V
-    Frequency: 50.0, // 단위: Hz
-    I1: 15.3, // 단위: A
-    I2: 14.8, // 단위: A
-    I3: 15.1, // 단위: A
-    VTHD: 3.5, // 단위: %
-    ITHD: 4.1, // 단위: %
-    PF: 0.98, // 단위: 없음 (Power Factor)
-    P: 4000.5, // 단위: W
-    Q: 1200.3, // 단위: var
-    S: 4500.7, // 단위: VA
-    EPPlus: 15000.0, // 단위: Wh
-    EPMinus: 5000.0, // 단위: Wh
+    voltage: 0,
+    current: 0,
+    effectiveEnergy: 0,
+    reactiveEnergy: 0,
+    apparentPower: 0,
+    powerFactor: 0,
+    frequency: 0,
+    harmonics: 0,
+    temperature: 0,
+    activePower: 0,
+    collectionTime: '',
   }
+
+  const maxVLN1 = 400
+  const normalizedVLN1 = (multiMetaData.VLN1 / maxVLN1) * 100
+  const maxActivePower = 5000
+  const normalizedActivePower = (multiMetaData.P / maxActivePower) * 100
 
   return (
     <CRow>
@@ -33,13 +56,70 @@ const DigitalMultiMeter = () => {
               VIDER-M3
             </CCardSubtitle>
             <CRow>
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">전압 단상</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedVLN1}
+                    minValue={0}
+                    maxValue={100}
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.VLN1 < 150
+                          ? '#00FF00'
+                          : multiMetaData.VLN1 < 300
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.VLN1} V</span>
+                </div>
+              </CCol>
+
+              {/* Active Power ΣP (as Gauge) */}
+              <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
+                <div className="mb-4 text-center">
+                  <div className="fs-5 fw-semibold">유효전력</div>
+                  <GaugeContainer
+                    width={200}
+                    height={200}
+                    startAngle={-110}
+                    endAngle={110}
+                    value={normalizedActivePower}
+                    minValue={0}
+                    maxValue={100}
+                  >
+                    <GaugeReferenceArc />
+                    <GaugeValueArc
+                      color={
+                        multiMetaData.P < 2500
+                          ? '#00FF00'
+                          : multiMetaData.P < 4000
+                            ? '#FFFF00'
+                            : '#FF0000'
+                      }
+                    />
+                    <GaugePointer />
+                  </GaugeContainer>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.P} W</span>
+                </div>
+              </CCol>
+
               {/* Voltage */}
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">
                     V<sub>LN1</sub>
                   </div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.VLN1} V</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
@@ -47,7 +127,7 @@ const DigitalMultiMeter = () => {
                   <div className="text-body-secondary">
                     V<sub>LN2</sub>
                   </div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.VLN2} V</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.VLN2} V</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
@@ -55,7 +135,7 @@ const DigitalMultiMeter = () => {
                   <div className="text-body-secondary">
                     V<sub>LN3</sub>
                   </div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.VLN3} V</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.VLN3} V</span>
                 </div>
               </CCol>
 
@@ -65,7 +145,7 @@ const DigitalMultiMeter = () => {
                   <div className="text-body-secondary">
                     U<sub>LL12</sub>
                   </div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.ULL12} V</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.ULL12} V</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
@@ -73,7 +153,7 @@ const DigitalMultiMeter = () => {
                   <div className="text-body-secondary">
                     U<sub>LL23</sub>
                   </div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.ULL23} V</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.ULL23} V</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
@@ -81,7 +161,7 @@ const DigitalMultiMeter = () => {
                   <div className="text-body-secondary">
                     U<sub>LL31</sub>
                   </div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.ULL31} V</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.ULL31} V</span>
                 </div>
               </CCol>
 
@@ -89,7 +169,7 @@ const DigitalMultiMeter = () => {
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">주파수</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.Frequency} Hz</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.Frequency} Hz</span>
                 </div>
               </CCol>
 
@@ -99,7 +179,7 @@ const DigitalMultiMeter = () => {
                   <div className="text-body-secondary">
                     I<sub>1</sub>
                   </div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.I1} A</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.I1} A</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
@@ -107,7 +187,7 @@ const DigitalMultiMeter = () => {
                   <div className="text-body-secondary">
                     I<sub>2</sub>
                   </div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.I2} A</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.I2} A</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
@@ -115,7 +195,7 @@ const DigitalMultiMeter = () => {
                   <div className="text-body-secondary">
                     I<sub>3</sub>
                   </div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.I3} A</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.I3} A</span>
                 </div>
               </CCol>
 
@@ -123,13 +203,13 @@ const DigitalMultiMeter = () => {
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">VTHD</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.VTHD} %</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.VTHD} %</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">ITHD</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.ITHD} %</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.ITHD} %</span>
                 </div>
               </CCol>
 
@@ -137,7 +217,7 @@ const DigitalMultiMeter = () => {
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">Power Factor</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.PF}</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.PF}</span>
                 </div>
               </CCol>
 
@@ -145,19 +225,19 @@ const DigitalMultiMeter = () => {
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">P</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.P} W</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">Q</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.Q} var</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.Q} var</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">S</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.S} VA</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.S} VA</span>
                 </div>
               </CCol>
 
@@ -165,13 +245,13 @@ const DigitalMultiMeter = () => {
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">유효전력량</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.EPPlus} Wh</span>
                 </div>
               </CCol>
               <CCol xs={6} md={4} xl={3}>
                 <div className="mb-4 text-align">
                   <div className="text-body-secondary">역전력량</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.EPMinus} Wh</div>
+                  <span style={{ fontSize: '3rem' }}>{multiMetaData.EPMinus} Wh</span>
                 </div>
               </CCol>
             </CRow>

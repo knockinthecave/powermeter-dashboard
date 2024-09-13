@@ -32,7 +32,7 @@ function GaugePointer() {
   return (
     <g>
       <circle cx={cx} cy={cy} r={5} fill="red" />
-      <path d={`M ${cx} ${cy} L ${target.x} ${target.y}`} stroke="red" strokeWidth={3} />
+      <path d={`M ${cx} ${cy} L ${target.x} ${target.y}`} stroke="red" strokeWidth={7} />
     </g>
   )
 }
@@ -103,6 +103,30 @@ const Dashboard = () => {
     reactivePower: 0,
     voltageT: 0,
     currentT: 0,
+    collectionTime: '',
+  })
+
+  const [smokeQualityData, setSmokeQualityData] = useState({
+    temperature: 0,
+    humidity: 0,
+    runningCheck: '',
+    smokeCheck: '',
+    temperatureWarining: '',
+    temperatureAlarm: '',
+    collectionTime: '',
+  })
+
+  const [multiMetaData, setMultiMetaData] = useState({
+    voltage: 0,
+    current: 0,
+    effectiveEnergy: 0,
+    reactiveEnergy: 0,
+    apparentPower: 0,
+    powerFactor: 0,
+    frequency: 0,
+    harmonics: 0,
+    temperature: 0,
+    activePower: 0,
     collectionTime: '',
   })
 
@@ -208,31 +232,42 @@ const Dashboard = () => {
     }
   }
 
-  const smokeQualityData = {
-    smokeDetect: 'OFF',
-    temperature: 25.4,
-    humidity: 54.2,
+  const fetchSmokeQualityData = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/heat-smoke/`)
+      setSmokeQualityData({
+        temperature: response.data.temperature,
+        humidity: response.data.humidity,
+        runningCheck: response.data.running_check,
+        smokeCheck: response.data.smoke_check,
+        temperatureWarining: response.data.temperature_warning,
+        temperatureAlarm: response.data.temperature_alarm,
+        collectionTime: response.data.collection_time,
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }
 
-  const multiMetaData = {
-    VLN1: 230.5, // 단위: µg/m³
-    VLN2: 231.2, // 단위: µg/m³
-    VLN3: 229.8, // 단위: µg/m³
-    ULL12: 398.5, // 단위: V
-    ULL23: 399.1, // 단위: V
-    ULL31: 397.8, // 단위: V
-    Frequency: 50.0, // 단위: Hz
-    I1: 15.3, // 단위: A
-    I2: 14.8, // 단위: A
-    I3: 15.1, // 단위: A
-    VTHD: 3.5, // 단위: %
-    ITHD: 4.1, // 단위: %
-    PF: 0.98, // 단위: 없음 (Power Factor)
-    P: 4000.5, // 단위: W
-    Q: 1200.3, // 단위: var
-    S: 4500.7, // 단위: VA
-    EPPlus: 15000.0, // 단위: Wh
-    EPMinus: 5000.0, // 단위: Wh
+  const fetchMultiMetaData = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/multimeter/`)
+      setMultiMetaData({
+        voltage: response.data.voltage,
+        current: response.data.current,
+        effectiveEnergy: response.data.effectiveenergy,
+        reactiveEnergy: response.data.reactiveenergy,
+        apparentPower: response.data.apparentpower,
+        powerFactor: response.data.powerfactor,
+        frequency: response.data.frequency,
+        harmonics: response.data.harmonics,
+        temperature: response.data.temperature,
+        activePower: response.data.activepower,
+        collectionTime: response.data.collection_time,
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const calculateTimeDifference = (time) => {
@@ -259,12 +294,16 @@ const Dashboard = () => {
     fetchPowerMeter2Data()
     fetchPowerMeter3Data()
     fetchPowerMeter4Data()
+    fetchSmokeQualityData()
+    fetchMultiMetaData()
     const intervalId = setInterval(() => {
       fetchAirQualityData() // 1분(60000ms)마다 데이터를 갱신
       fetchPowerMeter1Data()
       fetchPowerMeter2Data()
       fetchPowerMeter3Data()
       fetchPowerMeter4Data()
+      fetchSmokeQualityData()
+      fetchMultiMetaData()
     }, 60000) // 60000ms는 1분을 의미
 
     return () => clearInterval(intervalId)
@@ -299,10 +338,18 @@ const Dashboard = () => {
   }
 
   const maxGaugeVoltage = 400
-  const normalizedVoltage = (multiMetaData.VLN1 / maxGaugeVoltage) * 100
+  const normalizedMultiMetaVoltage = (multiMetaData.voltage / maxGaugeVoltage) * 100
+  const normalizedPowerMeter1Voltage = (powerMeter1Data.voltageR / maxGaugeVoltage) * 100
+  const normalizedPowerMeter2Voltage = (powerMeter2Data.voltageR / maxGaugeVoltage) * 100
+  const normalizedPowerMeter3Voltage = (powerMeter3Data.voltageR / maxGaugeVoltage) * 100
+  const normalizedPowerMeter4Voltage = (powerMeter4Data.voltageR / maxGaugeVoltage) * 100
 
   const maxActivePower = 5000
-  const normalizedActivePower = (multiMetaData.P / maxActivePower) * 100
+  const normalizedMultiMetaActivePower = (multiMetaData.activePower / maxActivePower) * 100
+  const normalizedPowerMeter1ActivePower = (powerMeter1Data.activePower / maxActivePower) * 100
+  const normalizedPowerMeter2ActivePower = (powerMeter2Data.activePower / maxActivePower) * 100
+  const normalizedPowerMeter3ActivePower = (powerMeter3Data.activePower / maxActivePower) * 100
+  const normalizedPowerMeter4ActivePower = (powerMeter4Data.activePower / maxActivePower) * 100
 
   return (
     <CRow>
@@ -323,23 +370,23 @@ const Dashboard = () => {
                     height={250}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedVoltage}
+                    value={normalizedMultiMetaVoltage}
                     minValue={0}
                     maxValue={100}
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.VLN1 < 150
+                        multiMetaData.voltage < 150
                           ? '#00FF00'
-                          : multiMetaData.VLN1 < 300
+                          : multiMetaData.voltage < 300
                             ? '#FFFF00'
                             : '#FF0000'
                       }
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                  <div className="fs-3 fw-semibold">{multiMetaData.voltage} V</div>
                 </div>
               </CCol>
 
@@ -352,7 +399,7 @@ const Dashboard = () => {
                     height={250}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedActivePower}
+                    value={normalizedMultiMetaActivePower}
                     minValue={0}
                     maxValue={100} // Adjust your maxValue based on actual power range
                   >
@@ -368,13 +415,13 @@ const Dashboard = () => {
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                  <div className="fs-3 fw-semibold">{multiMetaData.activePower} W</div>
                 </div>
               </CCol>
               <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">주파수</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.Frequency} Hz</div>
+                  <div className="fs-3 fw-semibold">{multiMetaData.frequency} Hz</div>
                 </div>
               </CCol>
 
@@ -382,7 +429,9 @@ const Dashboard = () => {
               <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">유효전력량</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                  <div className="fs-3 fw-semibold">
+                    {multiMetaData.effectiveEnergy / 1000} kWh+
+                  </div>
                 </div>
               </CCol>
               {/* Frequency (as Text) */}
@@ -406,23 +455,23 @@ const Dashboard = () => {
                     height={200}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedVoltage}
+                    value={normalizedPowerMeter1Voltage}
                     minValue={0}
                     maxValue={100}
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.VLN1 < 150
+                        powerMeter1Data.voltageR < 150
                           ? '#00FF00'
-                          : multiMetaData.VLN1 < 300
+                          : powerMeter1Data.voltageR < 300
                             ? '#FFFF00'
                             : '#FF0000'
                       }
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                  <div className="fs-3 fw-semibold">{powerMeter1Data.voltageR} V</div>
                 </div>
               </CCol>
 
@@ -435,29 +484,29 @@ const Dashboard = () => {
                     height={200}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedActivePower}
+                    value={normalizedPowerMeter1ActivePower}
                     minValue={0}
                     maxValue={5000} // Adjust your maxValue based on actual power range
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.P < 2500
+                        powerMeter1Data.activePower < 2500
                           ? '#00FF00'
-                          : multiMetaData.P < 4000
+                          : powerMeter1Data.activePower < 4000
                             ? '#FFFF00'
                             : '#FF0000'
                       }
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                  <div className="fs-3 fw-semibold">{powerMeter1Data.activePower} W</div>
                 </div>
               </CCol>
               <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">전류 단상</div>
-                  <div className="fs-3 fw-semibold">112 A</div>
+                  <div className="fs-3 fw-semibold">{powerMeter1Data.currentR} A</div>
                 </div>
               </CCol>
 
@@ -465,7 +514,7 @@ const Dashboard = () => {
               <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">유효전력량</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                  <div className="fs-3 fw-semibold">{powerMeter1Data.effectiveEnergy} Wh</div>
                 </div>
               </CCol>
             </CRow>
@@ -488,23 +537,23 @@ const Dashboard = () => {
                     height={200}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedVoltage}
+                    value={normalizedPowerMeter2Voltage}
                     minValue={0}
                     maxValue={100}
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.VLN1 < 150
+                        powerMeter2Data.voltageR < 150
                           ? '#00FF00'
-                          : multiMetaData.VLN1 < 300
+                          : powerMeter2Data.voltageR < 300
                             ? '#FFFF00'
                             : '#FF0000'
                       }
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                  <div className="fs-3 fw-semibold">{powerMeter2Data.voltageR} V</div>
                 </div>
               </CCol>
 
@@ -517,29 +566,29 @@ const Dashboard = () => {
                     height={200}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedActivePower}
+                    value={normalizedPowerMeter2ActivePower}
                     minValue={0}
                     maxValue={5000} // Adjust your maxValue based on actual power range
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.P < 2500
+                        powerMeter2Data.activePower < 2500
                           ? '#00FF00'
-                          : multiMetaData.P < 4000
+                          : powerMeter2Data.activePower < 4000
                             ? '#FFFF00'
                             : '#FF0000'
                       }
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                  <div className="fs-3 fw-semibold">{powerMeter2Data.activePower} W</div>
                 </div>
               </CCol>
               <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">전류 단상</div>
-                  <div className="fs-3 fw-semibold">112 A</div>
+                  <div className="fs-3 fw-semibold">{powerMeter2Data.currentR} A</div>
                 </div>
               </CCol>
 
@@ -547,7 +596,7 @@ const Dashboard = () => {
               <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">유효전력량</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                  <div className="fs-3 fw-semibold">{powerMeter2Data.effectiveEnergy} Wh</div>
                 </div>
               </CCol>
             </CRow>
@@ -570,23 +619,23 @@ const Dashboard = () => {
                     height={200}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedVoltage}
+                    value={normalizedPowerMeter3Voltage}
                     minValue={0}
                     maxValue={100}
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.VLN1 < 150
+                        powerMeter3Data.voltageR < 150
                           ? '#00FF00'
-                          : multiMetaData.VLN1 < 300
+                          : powerMeter3Data.voltageR < 300
                             ? '#FFFF00'
                             : '#FF0000'
                       }
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                  <div className="fs-3 fw-semibold">{powerMeter3Data.voltageR} V</div>
                 </div>
               </CCol>
 
@@ -599,29 +648,29 @@ const Dashboard = () => {
                     height={200}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedActivePower}
+                    value={normalizedPowerMeter3ActivePower}
                     minValue={0}
                     maxValue={5000} // Adjust your maxValue based on actual power range
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.P < 2500
+                        powerMeter3Data.activePower < 2500
                           ? '#00FF00'
-                          : multiMetaData.P < 4000
+                          : powerMeter3Data.activePower < 4000
                             ? '#FFFF00'
                             : '#FF0000'
                       }
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                  <div className="fs-3 fw-semibold">{powerMeter3Data.activePower} W</div>
                 </div>
               </CCol>
               <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">전류 단상</div>
-                  <div className="fs-3 fw-semibold">112 A</div>
+                  <div className="fs-3 fw-semibold">{powerMeter3Data.currentR} A</div>
                 </div>
               </CCol>
 
@@ -629,7 +678,7 @@ const Dashboard = () => {
               <CCol xs={12} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">유효전력량</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                  <div className="fs-3 fw-semibold">{powerMeter3Data.effectiveEnergy} Wh</div>
                 </div>
               </CCol>
             </CRow>
@@ -652,23 +701,23 @@ const Dashboard = () => {
                     height={200}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedVoltage}
+                    value={normalizedPowerMeter4Voltage}
                     minValue={0}
                     maxValue={100}
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.VLN1 < 150
+                        powerMeter4Data.voltageR < 150
                           ? '#00FF00'
-                          : multiMetaData.VLN1 < 300
+                          : powerMeter4Data.voltageR < 300
                             ? '#FFFF00'
                             : '#FF0000'
                       }
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.VLN1} V</div>
+                  <div className="fs-3 fw-semibold">{powerMeter4Data.voltageR} V</div>
                 </div>
               </CCol>
 
@@ -681,29 +730,29 @@ const Dashboard = () => {
                     height={200}
                     startAngle={-110}
                     endAngle={110}
-                    value={normalizedActivePower}
+                    value={normalizedPowerMeter4ActivePower}
                     minValue={0}
                     maxValue={5000} // Adjust your maxValue based on actual power range
                   >
                     <GaugeReferenceArc />
                     <GaugeValueArc
                       color={
-                        multiMetaData.P < 2500
+                        powerMeter4Data.activePower < 2500
                           ? '#00FF00'
-                          : multiMetaData.P < 4000
+                          : powerMeter4Data.activePower < 4000
                             ? '#FFFF00'
                             : '#FF0000'
                       }
                     />
                     <GaugePointer />
                   </GaugeContainer>
-                  <div className="fs-3 fw-semibold">{multiMetaData.P} W</div>
+                  <div className="fs-3 fw-semibold">{powerMeter4Data.activePower} W</div>
                 </div>
               </CCol>
               <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">전류 단상</div>
-                  <div className="fs-3 fw-semibold">112 A</div>
+                  <div className="fs-3 fw-semibold">{powerMeter4Data.currentR} A</div>
                 </div>
               </CCol>
 
@@ -711,7 +760,7 @@ const Dashboard = () => {
               <CCol xs={6} md={6} xl={6} className="d-flex justify-content-center">
                 <div className="mb-4 text-center">
                   <div className="fs-5 fw-semibold">유효전력량</div>
-                  <div className="fs-3 fw-semibold">{multiMetaData.EPPlus} Wh</div>
+                  <div className="fs-3 fw-semibold">{powerMeter4Data.effectiveEnergy} Wh</div>
                 </div>
               </CCol>
             </CRow>
@@ -811,30 +860,30 @@ const Dashboard = () => {
           <CCardBody className="p-4">
             <CCardTitle className="fs-4 fw-semibold">열연기 감지기</CCardTitle>
             <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
-              NEOS-HSD200
+              약 {calculateTimeDifference(smokeQualityData.collectionTime)}
             </CCardSubtitle>
             <CRow>
               <CCol xs={12} md={6} xl={4}>
                 <div className="mb-4">
-                  <div className="text-body-secondary text-truncate small">연기감지 챔버</div>
-                  <div className="fs-5 fw-semibold">{smokeQualityData.smokeDetect}</div>
-                  <CProgress
-                    value={100}
-                    color={smokeQualityData.smokeDetect === 'ON' ? 'danger' : 'success'}
-                  />
-                </div>
-                <div className="mb-4">
                   <div className="text-body-secondary text-truncate small">온도</div>
                   <div className="fs-5 fw-semibold">{smokeQualityData.temperature} °C</div>
                   <CProgress
-                    value={((smokeQualityData.temperature + 40) / 165) * 100}
+                    value={(smokeQualityData.temperature / 50) * 100}
                     color={
                       airQualityData.temperature > 35
                         ? 'danger'
-                        : airQualityData.temperature > 30
+                        : airQualityData.temperature > 32
                           ? 'warning'
                           : 'success'
                     }
+                  />
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">연기감지</div>
+                  <div className="fs-5 fw-semibold">{smokeQualityData.smokeCheck}</div>
+                  <CProgress
+                    value={100}
+                    color={smokeQualityData.smokeCheck === '감지' ? 'danger' : 'success'}
                   />
                 </div>
               </CCol>
@@ -851,6 +900,32 @@ const Dashboard = () => {
                           ? 'warning'
                           : 'success'
                     }
+                  />
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">온도 경고</div>
+                  <div className="fs-5 fw-semibold">{smokeQualityData.temperatureWarining}</div>
+                  <CProgress
+                    value={100}
+                    color={smokeQualityData.temperatureWarining === '발생' ? 'danger' : 'success'}
+                  />
+                </div>
+              </CCol>
+              <CCol xs={12} md={6} xl={4}>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">동작 상태</div>
+                  <div className="fs-5 fw-semibold">{smokeQualityData.runningCheck}</div>
+                  <CProgress
+                    value={100}
+                    color={smokeQualityData.runningCheck === '비정상' ? 'danger' : 'success'}
+                  />
+                </div>
+                <div className="mb-4">
+                  <div className="text-body-secondary text-truncate small">온도 알람</div>
+                  <div className="fs-5 fw-semibold">{smokeQualityData.temperatureAlarm}</div>
+                  <CProgress
+                    value={100}
+                    color={smokeQualityData.temperatureAlarm === '발생' ? 'danger' : 'success'}
                   />
                 </div>
               </CCol>

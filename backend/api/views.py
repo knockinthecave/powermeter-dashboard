@@ -6,7 +6,8 @@ from .models import (AirQuality,
                      PowerMeter1,
                      PowerMeter2,
                      PowerMeter3,
-                     PowerMeter4
+                     PowerMeter4,
+                     Digitalmultimeter
                      )
 from rest_framework.permissions import AllowAny
 from .serializers import (AirQualitySerializer,
@@ -14,7 +15,8 @@ from .serializers import (AirQualitySerializer,
                           PowerMeter1Serializer,
                           PowerMeter2Serializer,
                           PowerMeter3Serializer,
-                          PowerMeter4Serializer
+                          PowerMeter4Serializer,
+                          DigitalmultimeterSerializer
                           )
 
 
@@ -28,23 +30,6 @@ class AirQualityList(APIView):
         queryset = AirQuality.objects.order_by('-collection_time').first()
         if queryset:
             serializer = AirQualitySerializer(queryset)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"No Data Found."}, status=status.HTTP_404_NOT_FOUND)
-
-
-class HeatSmokeDetectorList(APIView):
-    """
-    HeatSmokeDetector 데이터를 조회하는 API 뷰
-    """
-    permission_classes = [AllowAny]
-
-    def get(self, request):
-        queryset = (HeatSmokeDetector
-                    .objects.order_by('-collection_time')
-                    .first()
-                    )
-        if queryset:
-            serializer = HeatSmokeDetectorSerializer(queryset)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"No Data Found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -101,5 +86,39 @@ class PowerMeter4List(APIView):
         queryset = PowerMeter4.objects.order_by('-collection_time').first()
         if queryset:
             serializer = PowerMeter4Serializer(queryset)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"No Data Found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class HeatSmokeDetectorList(APIView):
+    """
+    HeatSmokeDetector 데이터를 조회하는 API 뷰
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        queryset = (HeatSmokeDetector
+                    .objects.order_by('-collection_time')
+                    .first()
+                    )
+        if queryset:
+            serializer = HeatSmokeDetectorSerializer(queryset)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"No Data Found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DigitalmultimeterList(APIView):
+    """
+    Digitalmultimeter 데이터를 조회하는 API 뷰
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        queryset = (Digitalmultimeter
+                    .objects.order_by('-collection_time')
+                    .first()
+                    )
+        if queryset:
+            serializer = DigitalmultimeterSerializer(queryset)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response({"No Data Found."}, status=status.HTTP_404_NOT_FOUND)

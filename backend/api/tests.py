@@ -40,9 +40,12 @@ class HeatSmokeDetectorTests(APITestCase):
     def setUp(self):
         self.client = APIClient()
         HeatSmokeDetector.objects.create(
-             temperature=55,
-             humidity=2,
-             smoke_level=1,
+             temperature=26.8,
+             humidity=46.4,
+             running_check='정상',
+             smoke_check='미감지',
+             temperature_warning='미발생',
+             temperature_alarm='미발생',
              collection_time=timezone.now()
           )
 
@@ -53,7 +56,10 @@ class HeatSmokeDetectorTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('temperature', response.data)
         self.assertIn('humidity', response.data)
-        self.assertIn('smoke_level', response.data)
+        self.assertIn('running_check', response.data)
+        self.assertIn('smoke_check', response.data)
+        self.assertIn('temperature_warning', response.data)
+        self.assertIn('temperature_alarm', response.data)
         self.assertIn('collection_time', response.data)
 
 

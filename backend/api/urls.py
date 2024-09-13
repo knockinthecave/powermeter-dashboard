@@ -5,7 +5,8 @@ from .views import (
     PowerMeter1List,
     PowerMeter2List,
     PowerMeter3List,
-    PowerMeter4List
+    PowerMeter4List,
+    DigitalmultimeterList
     )
 
 urlpatterns = [
@@ -17,4 +18,6 @@ urlpatterns = [
     path('powermeter2/', PowerMeter2List.as_view(), name='powermeter2-list'),
     path('powermeter3/', PowerMeter3List.as_view(), name='powermeter3-list'),
     path('powermeter4/', PowerMeter4List.as_view(), name='powermeter4-list'),
+    path('multimeter/', DigitalmultimeterList.as_view(),
+         name='multimeter-list')
 ]
