@@ -357,7 +357,7 @@ const Dashboard = () => {
           <CCardBody className="p-4">
             <CCardTitle className="fs-4 fw-semibold">종합전력량</CCardTitle>
             <CCardSubtitle className="fw-normal text-body-secondary border-bottom mb-3 pb-4">
-              VIDER-M3
+              약 {calculateTimeDifference(multiMetaData.collectionTime)}
             </CCardSubtitle>
             <CRow>
               {/* Voltage (as Gauge) */}

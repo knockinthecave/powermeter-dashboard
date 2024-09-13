@@ -48,8 +48,6 @@ const AppHeader = () => {
       try {
         const apiKey = process.env.REACT_APP_WEATHER_API_KEY
 
-        console.log('apiKey:', apiKey)
-
         // OpenWeather API 요청
         const response = await axios.get(
           `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`,
@@ -70,30 +68,32 @@ const AppHeader = () => {
       }
     }
 
-    // 저장된 위치 정보 가져오기
-    const savedLatitude = localStorage.getItem('latitude')
-    const savedLongitude = localStorage.getItem('longitude')
+    const updateData = () => {
+      const savedLatitude = localStorage.getItem('latitude')
+      const savedLongitude = localStorage.getItem('longitude')
 
-    if (savedLatitude && savedLongitude) {
-      // 저장된 위치 정보가 있으면 그걸로 API 호출
-      fetchWeatherData(savedLatitude, savedLongitude)
-    } else {
-      // 위치 정보가 없으면 현재 위치 가져오기
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords
-          // 위치 정보 저장
-          localStorage.setItem('latitude', latitude)
-          localStorage.setItem('longitude', longitude)
-
-          // API 호출
-          fetchWeatherData(latitude, longitude)
-        },
-        (error) => {
-          console.error('Error getting geolocation:', error.message)
-        },
-      )
+      if (savedLatitude && savedLongitude) {
+        fetchWeatherData(savedLatitude, savedLongitude)
+      } else {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords
+            localStorage.setItem('latitude', latitude)
+            localStorage.setItem('longitude', longitude)
+            fetchWeatherData(latitude, longitude)
+          },
+          (error) => {
+            console.error('Error getting geolocation:', error.message)
+          },
+        )
+      }
     }
+
+    updateData() // 처음에 데이터를 한번 가져옴
+    const intervalId = setInterval(updateData, 1200000) // 20분마다 데이터 업데이트
+
+    // 컴포넌트가 언마운트될 때 타이머 정리
+    return () => clearInterval(intervalId)
   }, [])
 
   return (
