@@ -184,7 +184,6 @@ const Dashboard = () => {
         reactivePower: response.data.reactivePower,
         collectionTime: response.data.collection_time,
       })
-      console.log(response.data)
     } catch (error) {
       console.error(error)
     }
