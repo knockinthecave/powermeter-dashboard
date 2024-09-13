@@ -70,16 +70,30 @@ const AppHeader = () => {
       }
     }
 
-    // 현재 위치 가져오기
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords
-        fetchWeatherData(latitude, longitude)
-      },
-      (error) => {
-        console.error('Error getting geolocation:', error.message)
-      },
-    )
+    // 저장된 위치 정보 가져오기
+    const savedLatitude = localStorage.getItem('latitude')
+    const savedLongitude = localStorage.getItem('longitude')
+
+    if (savedLatitude && savedLongitude) {
+      // 저장된 위치 정보가 있으면 그걸로 API 호출
+      fetchWeatherData(savedLatitude, savedLongitude)
+    } else {
+      // 위치 정보가 없으면 현재 위치 가져오기
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords
+          // 위치 정보 저장
+          localStorage.setItem('latitude', latitude)
+          localStorage.setItem('longitude', longitude)
+
+          // API 호출
+          fetchWeatherData(latitude, longitude)
+        },
+        (error) => {
+          console.error('Error getting geolocation:', error.message)
+        },
+      )
+    }
   }, [])
 
   return (
