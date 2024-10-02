@@ -36,7 +36,7 @@ const ArtWork = () => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length)
         setFade(true)
       }, 500) // 500ms 동안 페이드 아웃 후 이미지 전환
-    }, 15000) // 15초마다 이미지 변경
+    }, 86400000) // 15초마다 이미지 변경
 
     // 컴포넌트가 언마운트될 때 타이머를 정리합니다.
     return () => clearInterval(intervalId)
