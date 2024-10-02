@@ -10,18 +10,6 @@ import artworkImage7 from 'src/assets/images/settings/artwork/artwork7.jpg'
 import artworkImage8 from 'src/assets/images/settings/artwork/artwork8.jpg'
 import artworkImage9 from 'src/assets/images/settings/artwork/artwork9.jpg'
 import artworkImage10 from 'src/assets/images/settings/artwork/artwork10.jpg'
-import artworkImage11 from 'src/assets/images/settings/artwork/artwork11.jpg'
-import artworkImage12 from 'src/assets/images/settings/artwork/artwork12.jpg'
-import artworkImage13 from 'src/assets/images/settings/artwork/artwork13.jpg'
-import artworkImage14 from 'src/assets/images/settings/artwork/artwork14.jpg'
-import artworkImage15 from 'src/assets/images/settings/artwork/artwork15.jpg'
-import artworkImage16 from 'src/assets/images/settings/artwork/artwork16.jpg'
-import artworkImage17 from 'src/assets/images/settings/artwork/artwork17.jpg'
-import artworkImage18 from 'src/assets/images/settings/artwork/artwork18.jpg'
-import artworkImage19 from 'src/assets/images/settings/artwork/artwork19.jpg'
-import artworkImage20 from 'src/assets/images/settings/artwork/artwork20.jpg'
-import artworkImage21 from 'src/assets/images/settings/artwork/artwork21.jpg'
-import artworkImage22 from 'src/assets/images/settings/artwork/artwork22.jpg'
 import Debussy from 'src/assets/music/Debussy.mp3'
 
 const images = [
@@ -35,18 +23,6 @@ const images = [
   artworkImage8,
   artworkImage9,
   artworkImage10,
-  artworkImage11,
-  artworkImage12,
-  artworkImage13,
-  artworkImage14,
-  artworkImage15,
-  artworkImage16,
-  artworkImage17,
-  artworkImage18,
-  artworkImage19,
-  artworkImage20,
-  artworkImage21,
-  artworkImage22,
 ]
 
 const ArtWork = () => {

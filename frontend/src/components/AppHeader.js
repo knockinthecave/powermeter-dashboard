@@ -46,22 +46,14 @@ const AppHeader = () => {
   useEffect(() => {
     const fetchWeatherData = async (lat, lon) => {
       try {
-        const apiKey = process.env.REACT_APP_WEATHER_API_KEY
-
         // OpenWeather API 요청
-        const response = await axios.get(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`,
-        )
-
-        const airQualityResponse = await axios.get(
-          `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`,
-        )
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/airquality/`)
 
         setAirQualityData({
-          temperature: response.data.main.temp,
-          humidity: response.data.main.humidity,
-          PM10: airQualityResponse.data.list[0].components.pm10,
-          PM25: airQualityResponse.data.list[0].components.pm2_5,
+          temperature: response.data.temperature,
+          humidity: response.data.humidity,
+          PM10: response.data.pm10,
+          PM25: response.data.pm25,
         })
       } catch (error) {
         console.error('Error fetching weather data:', error)
